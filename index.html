@@ -2,6 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Libriley</title>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -738,6 +741,8 @@ function finishPomodoro(){
 
 // ── INIT ──
 loadGenres();renderBooks();renderAnnualGoal();
+
+  navigator.serviceWorker?.register?.('sw.js');
 </script>
 </body>
 </html>

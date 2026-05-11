@@ -7,35 +7,331 @@
 <link rel="manifest" href="manifest.json">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Libriley</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
-body{background:#081120;color:white;font-family:Inter,sans-serif}
-.card{width:100%;min-width:0;background:#162033;border-radius:24px;padding:22px}
-.input{width:100%;background:#0f172a;border:1px solid #334155;border-radius:18px;padding:14px;color:white;margin-top:6px;box-sizing:border-box;font-size:14px}
-.input:focus{outline:none;border-color:#6366f1}
-.progress{width:100%;height:28px;border-radius:999px;overflow:hidden;background:#243247}
-.progress-fill{height:100%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;transition:width .4s}
-.star{font-size:28px;color:#475569;cursor:pointer}
-.star.active{color:#facc15}
-.details{display:none}.details.open{display:block}
-.badge-card{background:#0f172a;border:1px solid #334155;border-radius:20px;padding:20px}
-.nav-active{background:#4f46e5!important}
-.tab-btn{padding:10px 18px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;background:#1e293b;color:#94a3b8;border:none;transition:all .15s}
-.tab-btn.active{background:#4f46e5;color:white}
-.status-tag{position:absolute;top:8px;left:8px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;letter-spacing:.03em;backdrop-filter:blur(4px)}
-.tag-reading{background:rgba(37,99,235,.85);color:#bfdbfe}
-.tag-finished{background:rgba(22,163,74,.85);color:#bbf7d0}
-.tag-wishlist{background:rgba(147,51,234,.85);color:#e9d5ff}
-.tag-dropped{background:rgba(220,38,38,.85);color:#fecaca}
-.pomodoro-ring{stroke-dasharray:188;stroke-dashoffset:188;transition:stroke-dashoffset .5s linear}
-.hist-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:14px}
-.genre-tag{display:inline-flex;align-items:center;gap:6px;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:6px 12px;font-size:13px}
+  /* ==========================================
+     1. RESET E ESTILOS GERAIS
+     ========================================== */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background: #081120;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+  }
+  button {
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.15s ease-in-out;
+  }
+  input, select, textarea {
+    font-family: inherit;
+    color: inherit;
+    outline: none;
+  }
+
+  /* ==========================================
+     2. COMPONENTES DO SISTEMA
+     ========================================== */
+  .card {
+    width: 100%;
+    min-width: 0;
+    background: #162033;
+    border-radius: 24px;
+    padding: 22px;
+  }
+  .input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 18px;
+    padding: 14px;
+    color: white;
+    margin-top: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+  .input:focus {
+    border-color: #6366f1;
+  }
+  .progress {
+    width: 100%;
+    height: 28px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #243247;
+  }
+  .progress-fill {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    transition: width 0.4s;
+  }
+  .star {
+    font-size: 28px;
+    color: #475569;
+    cursor: pointer;
+  }
+  .star.active {
+    color: #facc15;
+  }
+  .details {
+    display: none;
+  }
+  .details.open {
+    display: block;
+  }
+  .badge-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .nav-active {
+    background: #4f46e5 !important;
+  }
+  .tab-btn {
+    padding: 10px 18px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #1e293b;
+    color: #94a3b8;
+    border: none;
+    transition: all 0.15s;
+  }
+  .tab-btn.active {
+    background: #4f46e5;
+    color: white;
+  }
+  .status-tag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    letter-spacing: 0.03em;
+    backdrop-filter: blur(4px);
+  }
+  .tag-reading  { background: rgba(37, 99, 235, 0.85); color: #bfdbfe; }
+  .tag-finished { background: rgba(22, 163, 74, 0.85); color: #bbf7d0; }
+  .tag-wishlist { background: rgba(147, 51, 234, 0.85); color: #e9d5ff; }
+  .tag-dropped  { background: rgba(220, 38, 38, 0.85); color: #fecaca; }
+
+  .pomodoro-ring {
+    stroke-dasharray: 188;
+    stroke-dashoffset: 188;
+    transition: stroke-dashoffset 0.5s linear;
+  }
+  .hist-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  /* ==========================================
+     3. CLASSES UTILITÁRIAS (SUBSTITUTAS DO TAILWIND)
+     ========================================== */
+  /* Layout e Containers */
+  .max-w-5xl { max-width: 64rem; } /* 1024px */
+  .max-w-2xl { max-width: 42rem; } /* 672px */
+  .max-w-xs  { max-width: 20rem; } /* 320px */
+  .mx-auto   { margin-left: auto; margin-right: auto; }
+  
+  .w-full { width: 100%; }
+  .w-auto { width: auto; }
+  .w-4    { width: 1rem; }
+  .w-5    { width: 1.25rem; }
+  .h-5    { height: 1.25rem; }
+  .w-10   { width: 2.5rem; }
+  .h-10   { height: 2.5rem; }
+  .w-16   { width: 4rem; }
+  .w-20   { width: 5rem; }
+  .h-20   { height: 5rem; }
+  .w-28   { width: 7rem; }
+  .h-2    { height: 0.5rem; }
+  .h-full { height: 100%; }
+  .aspect-\[2\/3\] { aspect-ratio: 2 / 3; }
+
+  /* Displays e Flexbox */
+  .hidden { display: none !important; }
+  .flex   { display: flex; }
+  .grid   { display: grid; }
+  
+  .flex-wrap       { flex-wrap: wrap; }
+  .flex-1          { flex: 1 1 0%; }
+  .shrink-0        { flex-shrink: 0; }
+  .justify-between { justify-content: space-between; }
+  .justify-center  { justify-content: center; }
+  .items-center    { align-items: center; }
+  .items-start     { align-items: flex-start; }
+  .items-end       { align-items: flex-end; }
+
+  /* Grids */
+  .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  
+  .gap-1 { gap: 0.25rem; }
+  .gap-2 { gap: 0.5rem; }
+  .gap-3 { gap: 0.75rem; }
+  .gap-4 { gap: 1rem; }
+  .gap-5 { gap: 1.25rem; }
+  .gap-6 { gap: 1.5rem; }
+
+  /* Responsividade Grid */
+  @media (min-width: 640px) {
+    .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .sm\:col-span-2  { grid-column: span 2 / span 2; }
+  }
+  @media (min-width: 1024px) {
+    .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1280px) {
+    .xl\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  /* Espaçamentos (Paddings) */
+  .p-4    { padding: 1rem; }
+  .p-5    { padding: 1.25rem; }
+  .p-6    { padding: 1.5rem; }
+  .py-2   { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .py-3   { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+  .py-4   { padding-top: 1rem; padding-bottom: 1rem; }
+  .py-8   { padding-top: 2rem; padding-bottom: 2rem; }
+  .py-12  { padding-top: 3rem; padding-bottom: 3rem; }
+  .px-3   { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .px-4   { padding-left: 1rem; padding-right: 1rem; }
+  .px-6   { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .pb-6   { padding-bottom: 1.5rem; }
+  .pl-3   { padding-left: 0.75rem; }
+
+  /* Espaçamentos (Margins) */
+  .my-4     { margin-top: 1rem; margin-bottom: 1rem; }
+  .mb-0     { margin-bottom: 0px; }
+  .mb-1     { margin-bottom: 0.25rem; }
+  .mb-2     { margin-bottom: 0.5rem; }
+  .mb-3     { margin-bottom: 0.75rem; }
+  .mb-4     { margin-bottom: 1rem; }
+  .mb-5     { margin-bottom: 1.25rem; }
+  .mb-6     { margin-bottom: 1.5rem; }
+  .mt-0     { margin-top: 0px; }
+  .mt-0\.5  { margin-top: 0.125rem; }
+  .mt-1     { margin-top: 0.25rem; }
+  .mt-2     { margin-top: 0.5rem; }
+  .mt-3     { margin-top: 0.75rem; }
+  .mt-4     { margin-top: 1rem; }
+  .mt-6     { margin-top: 1.5rem; }
+  
+  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+
+  /* Tipografia */
+  .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+  .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+  .text-xl  { font-size: 1.25rem; line-height: 1.75rem; }
+  .text-lg  { font-size: 1.125rem; line-height: 1.75rem; }
+  .text-sm  { font-size: 0.875rem; line-height: 1.25rem; }
+  .text-xs  { font-size: 0.75rem; line-height: 1rem; }
+  
+  .font-bold       { font-weight: 700; }
+  .font-semibold   { font-weight: 600; }
+  .italic          { font-style: italic; }
+  .uppercase       { text-transform: uppercase; }
+  .tracking-wider  { letter-spacing: 0.05em; }
+  .text-center     { text-align: center; }
+  .text-right      { text-align: right; }
+  .leading-tight   { line-height: 1.25; }
+  .truncate        { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Cores de Texto */
+  .text-white       { color: #ffffff; }
+  .text-slate-300   { color: #cbd5e1; }
+  .text-slate-400   { color: #94a3b8; }
+  .text-slate-500   { color: #64748b; }
+  .text-slate-600   { color: #475569; }
+  .text-yellow-400  { color: #facc15; }
+  .text-green-400   { color: #4ade80; }
+  .text-indigo-400  { color: #818cf8; }
+  .text-purple-400  { color: #c084fc; }
+
+  /* Efeitos Hover em Textos */
+  .hover\:text-white:hover { color: #ffffff; }
+
+  /* Cores de Fundo */
+  .bg-indigo-600  { background-color: #4f46e5; }
+  .bg-indigo-500  { background-color: #6366f1; }
+  .bg-slate-700   { background-color: #334155; }
+  .bg-slate-800   { background-color: #1e293b; }
+  .bg-slate-900   { background-color: #0f172a; }
+  .bg-red-600     { background-color: #dc2626; }
+  .bg-red-800     { background-color: #991b1b; }
+  .bg-green-700   { background-color: #15803d; }
+  .bg-green-500   { background-color: #22c55e; }
+  .bg-yellow-600  { background-color: #ca8a04; }
+  .bg-black\/70   { background-color: rgba(0, 0, 0, 0.7); }
+
+  /* Efeitos Hover em Fundos */
+  .hover\:bg-indigo-500:hover { background-color: #6366f1; }
+  .hover\:bg-slate-600:hover  { background-color: #475569; }
+  .hover\:bg-red-500:hover    { background-color: #ef4444; }
+  .hover\:bg-red-700:hover    { background-color: #b91c1c; }
+  .hover\:bg-green-600:hover  { background-color: #16a34a; }
+  .hover\:bg-yellow-500:hover { background-color: #eab308; }
+
+  /* Bordas e Arredondamentos */
+  .rounded-lg   { border-radius: 0.5rem; }
+  .rounded-xl   { border-radius: 0.75rem; }
+  .rounded-2xl  { border-radius: 1rem; }
+  .rounded-3xl  { border-radius: 1.5rem; }
+  .rounded-full { border-radius: 9999px; }
+  
+  .border           { border-width: 1px; border-style: solid; }
+  .border-l-2       { border-left-width: 2px; border-left-style: solid; }
+  .border-slate-700 { border-color: #334155; }
+  .border-indigo-500{ border-color: #6366f1; }
+
+  /* Posicionamento e Outros Efeitos */
+  .relative       { position: relative; }
+  .fixed          { position: fixed; }
+  .absolute       { position: absolute; }
+  .inset-0        { top: 0; right: 0; bottom: 0; left: 0; }
+  .bottom-6       { bottom: 1.5rem; }
+  .left-1\/2      { left: 50%; }
+  .-translate-x-1\/2 { transform: translateX(-50%); }
+
+  .z-50                 { z-index: 50; }
+  .overflow-hidden      { overflow: hidden; }
+  .overflow-auto        { overflow: auto; }
+  .object-cover         { object-fit: cover; }
+  .cursor-pointer       { cursor: pointer; }
+  .inline-block         { display: inline-block; }
+  .opacity-40           { opacity: 0.4; }
+  .opacity-60           { opacity: 0.6; }
+  .transition           { transition: all 0.2s ease-in-out; }
+  .pointer-events-none  { pointer-events: none; }
+
+  .shadow-lg  { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.1); }
+  .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
 </style>
 </head>
 <body>
 <div class="max-w-5xl mx-auto p-4 pb-6">
 
-  <!-- TOPBAR -->
   <div class="flex justify-between items-center mb-6">
     <div>
       <h1 class="text-3xl font-bold">Libriley</h1>
@@ -48,7 +344,6 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
     </div>
   </div>
 
-  <!-- NAV MENU -->
   <div id="menu" class="hidden card mb-5">
     <div class="grid grid-cols-4 gap-2">
       <button id="nav-library" onclick="showView('library')" class="nav-btn nav-active py-3 rounded-2xl text-sm font-semibold">📚 Biblioteca</button>
@@ -58,7 +353,6 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
     </div>
   </div>
 
-  <!-- POMODORO PANEL -->
   <div id="pomodoroPanel" class="hidden card mb-5">
     <div class="flex items-center justify-between mb-4">
       <span class="font-semibold text-lg">🍅 Pomodoro</span>
@@ -87,9 +381,7 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
     </div>
   </div>
 
-  <!-- LIBRARY VIEW -->
   <div id="libraryView">
-    <!-- meta anual destaque -->
     <div class="card mb-5" id="annual-goal-card">
       <div class="flex justify-between items-start mb-3">
         <div>
@@ -104,14 +396,12 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
       <p class="text-slate-400 text-xs mt-2" id="annual-subtitle"></p>
     </div>
 
-    <!-- stats rápidos -->
     <div class="grid grid-cols-3 gap-3 mb-5">
       <div class="card p-4 text-center"><p class="text-slate-400 text-xs">Páginas lidas</p><h3 id="pagesRead" class="text-2xl font-bold mt-1">0</h3></div>
       <div class="card p-4 text-center"><p class="text-slate-400 text-xs">Lendo agora</p><h3 id="readingNow" class="text-2xl font-bold mt-1">0</h3></div>
       <div class="card p-4 text-center"><p class="text-slate-400 text-xs">Total na estante</p><h3 id="booksCount" class="text-2xl font-bold mt-1">0</h3></div>
     </div>
 
-    <!-- abas de status -->
     <div class="flex gap-2 mb-4 flex-wrap">
       <button class="tab-btn active" id="tab-all" onclick="filterBooks('all')">Todos</button>
       <button class="tab-btn" id="tab-reading" onclick="filterBooks('reading')">📖 Lendo</button>
@@ -123,7 +413,6 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
     <div id="booksGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 items-start"></div>
   </div>
 
-  <!-- HISTORY VIEW -->
   <div id="historyView" class="hidden">
     <div class="card">
       <div class="flex justify-between items-center mb-5">
@@ -138,9 +427,7 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
     </div>
   </div>
 
-  <!-- GOALS VIEW -->
   <div id="goalsView" class="hidden">
-    <!-- meta anual -->
     <div class="card mb-4">
       <div class="flex justify-between items-center mb-4">
         <div>
@@ -164,7 +451,6 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
       </div>
     </div>
 
-    <!-- meta de ritmo -->
     <div class="card mb-4">
       <div class="flex justify-between items-center mb-4">
         <div>
@@ -188,7 +474,6 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
         </div>
         <button onclick="saveRhythmGoal()" class="bg-indigo-600 hover:bg-indigo-500 py-3 w-full rounded-xl mt-3 font-semibold text-sm">Salvar meta de ritmo</button>
       </div>
-      <!-- streak -->
       <div class="mt-4">
         <p class="text-slate-400 text-sm font-semibold mb-3">🔥 Histórico de conclusões</p>
         <div id="streakContainer" class="flex gap-2 flex-wrap"></div>
@@ -198,7 +483,6 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
       </div>
     </div>
 
-    <!-- estatísticas -->
     <div class="card mb-4">
       <h2 class="text-xl font-bold mb-4">Estatísticas</h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5" id="stats-grid"></div>
@@ -209,7 +493,6 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
     </div>
   </div>
 
-  <!-- ACHIEVEMENTS VIEW -->
   <div id="achievementsView" class="hidden">
     <div class="card">
       <h2 class="text-xl font-bold mb-5">🏆 Conquistas</h2>
@@ -218,7 +501,6 @@ body{background:#081120;color:white;font-family:Inter,sans-serif}
   </div>
 </div>
 
-<!-- BOOK MODAL -->
 <div id="modal" class="hidden fixed inset-0 bg-black/70 p-4 overflow-auto z-50">
   <div class="bg-slate-800 max-w-2xl mx-auto rounded-3xl p-6 my-4">
     <div class="flex justify-between items-center mb-5">

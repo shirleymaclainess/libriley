@@ -338,7 +338,6 @@
       <p class="text-slate-400 text-sm mt-1">Seu painel pessoal de leitura</p>
     </div>
     <div class="flex gap-2 items-center">
-      <button onclick="togglePomodoroPanel()" class="bg-slate-700 hover:bg-slate-600 px-4 py-3 rounded-2xl text-lg" title="Pomodoro">🍅</button>
       <button onclick="openBookModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-3 rounded-2xl font-semibold text-sm">+ Livro</button>
       <button onclick="toggleMenu()" class="bg-slate-700 hover:bg-slate-600 px-4 py-3 rounded-2xl text-lg">☰</button>
     </div>
@@ -346,38 +345,17 @@
 
   <div id="menu" class="hidden card mb-5">
     <div class="grid grid-cols-4 gap-2">
-      <button id="nav-library" onclick="showView('library')" class="nav-btn nav-active py-3 rounded-2xl text-sm font-semibold">📚 Biblioteca</button>
-      <button id="nav-history" onclick="showView('history')" class="nav-btn bg-slate-700 py-3 rounded-2xl text-sm font-semibold">📋 Histórico</button>
-      <button id="nav-goals" onclick="showView('goals')" class="nav-btn bg-slate-700 py-3 rounded-2xl text-sm font-semibold">🎯 Metas</button>
-      <button id="nav-achievements" onclick="showView('achievements')" class="nav-btn bg-slate-700 py-3 rounded-2xl text-sm font-semibold">🏆 Conquistas</button>
+      <button id="nav-library" onclick="showView('library')" class="nav-btn nav-active rounded-2xl text-sm font-semibold" style="padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:1.2rem">📚</span><span>Biblioteca</span></button>
+      <button id="nav-history" onclick="showView('history')" class="nav-btn bg-slate-700 rounded-2xl text-sm font-semibold" style="padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:1.2rem">📋</span><span>Histórico</span></button>
+      <button id="nav-goals" onclick="showView('goals')" class="nav-btn bg-slate-700 rounded-2xl text-sm font-semibold" style="padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:1.2rem">🎯</span><span>Metas</span></button>
+      <button id="nav-achievements" onclick="showView('achievements')" class="nav-btn bg-slate-700 rounded-2xl text-sm font-semibold" style="padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:1.2rem">🏆</span><span>Conquistas</span></button>
     </div>
-  </div>
-
-  <div id="pomodoroPanel" class="hidden card mb-5">
-    <div class="flex items-center justify-between mb-4">
-      <span class="font-semibold text-lg">🍅 Pomodoro</span>
-      <div class="flex items-center gap-3">
-        <span class="text-slate-400 text-sm">Duração (min):</span>
-        <input id="pom-duration" type="number" value="25" min="1" max="99" class="input w-20 text-center py-2 mt-0">
-      </div>
-    </div>
-    <div class="flex items-center gap-6">
-      <div class="relative w-20 h-20 shrink-0">
-        <svg width="80" height="80" style="transform:rotate(-90deg)">
-          <circle cx="40" cy="40" r="30" fill="none" stroke="#1e293b" stroke-width="6"/>
-          <circle id="pom-ring" cx="40" cy="40" r="30" fill="none" stroke="#ef4444" stroke-width="6" class="pomodoro-ring"/>
-        </svg>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <span id="pom-display" class="text-sm font-bold">25:00</span>
-        </div>
-      </div>
-      <div class="flex-1">
-        <div id="pom-status" class="text-slate-400 text-sm mb-3">Pronto para começar</div>
-        <div class="flex gap-2">
-          <button onclick="startPomodoro()" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-xl text-sm font-semibold">Iniciar</button>
-          <button onclick="resetPomodoro()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-sm font-semibold">Resetar</button>
-        </div>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #334155;">
+      <button onclick="exportarBackup()" style="padding:10px;background:#1e293b;border:1px solid #334155;border-radius:12px;font-size:13px;cursor:pointer;color:#94a3b8;">📤 Exportar backup</button>
+      <label style="padding:10px;background:#1e293b;border:1px solid #334155;border-radius:12px;font-size:13px;cursor:pointer;color:#94a3b8;text-align:center;display:flex;align-items:center;justify-content:center;gap:4px;">
+        📥 Restaurar
+        <input type="file" accept=".json" onchange="importarBackup(event)" style="display:none">
+      </label>
     </div>
   </div>
 
@@ -532,7 +510,14 @@
         </select>
       </div>
       <div class="sm:col-span-2">
-        <label class="text-slate-400 text-sm flex items-center gap-2">Capa do livro <span title="Tamanho ideal: 600x900px — Você também pode colar uma URL" class="bg-slate-700 w-5 h-5 rounded-full flex items-center justify-center text-xs cursor-pointer">i</span></label>
+        <label class="text-slate-400 text-sm flex items-center gap-2">Capa do livro
+          <span id="cover-info-btn" onclick="toggleCoverInfo()" style="background:#334155;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;user-select:none;">i</span>
+        </label>
+        <div id="cover-info-box" style="display:none;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:12px;color:#94a3b8;margin-top:6px;line-height:1.6;">
+          📐 Tamanho ideal: <strong style="color:#fff">600 × 900px</strong> (proporção 2:3)<br>
+          🔗 Cole uma URL de imagem ou envie um arquivo.<br>
+          💡 Dica: use capas do Google Imagens ou OpenLibrary.
+        </div>
         <input id="cover-url" class="input" placeholder="URL da capa (opcional)">
         <input id="cover" class="input mt-2" type="file" accept="image/*">
       </div>
@@ -710,10 +695,35 @@ function renderBooks(){
         ${b.pages?`<p class="text-slate-500 text-xs mt-1">${b.currentPage||0} / ${b.pages} págs</p>`:''}
       </div>
       <div class="mt-3 bg-slate-900 rounded-2xl p-4">
-        <div id="timer-${b.id}" class="text-2xl font-bold">00:00:00</div>
-        <div class="grid grid-cols-2 gap-2 mt-3">
-          <button onclick="startTimer(${b.id})" class="bg-green-700 hover:bg-green-600 py-2 rounded-xl text-sm font-semibold">▶ Iniciar</button>
-          <button onclick="stopTimer(${b.id})" class="bg-red-800 hover:bg-red-700 py-2 rounded-xl text-sm font-semibold">■ Encerrar</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="font-weight:600;font-size:14px;">🍅 Pomodoro</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:12px;color:#94a3b8;">min:</span>
+            <input id="pom-dur-${b.id}" type="number" value="25" min="1" max="99"
+              style="width:48px;background:#0f172a;border:1px solid #334155;border-radius:10px;padding:4px 8px;color:white;font-size:13px;text-align:center;">
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="position:relative;width:72px;height:72px;flex-shrink:0;">
+            <svg width="72" height="72">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#1e293b" stroke-width="6"/>
+              <circle id="pom-ring-${b.id}" cx="36" cy="36" r="28" fill="none" stroke="#ef4444" stroke-width="6"
+                stroke-dasharray="176" stroke-dashoffset="176"
+                style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .5s linear;"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+              <span id="pom-disp-${b.id}" style="font-size:12px;font-weight:700;">25:00</span>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <div id="pom-stat-${b.id}" style="font-size:12px;color:#94a3b8;margin-bottom:8px;">Pronto</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+              <button onclick="startBookPomodoro(${b.id})"
+                style="background:#dc2626;padding:7px;border-radius:10px;font-size:12px;font-weight:600;">▶ Iniciar</button>
+              <button onclick="resetBookPomodoro(${b.id})"
+                style="background:#1e293b;border:1px solid #334155;padding:7px;border-radius:10px;font-size:12px;font-weight:600;">Resetar</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="mt-3 flex gap-2">
@@ -757,21 +767,114 @@ function stopTimer(id){
   const mins=Math.floor(timers[id].secs/60);
   clearInterval(timers[id].interval);delete timers[id];
   const el=document.getElementById('timer-'+id);if(el)el.innerText='00:00:00';
-  // pedir páginas lidas nessa sessão
   const pagesInSession=parseInt(prompt('Quantas páginas você leu nessa sessão? (deixe em branco para pular)')||'0')||0;
-  logs.unshift({
-    ts:Date.now(),
-    title:b?.title||'Livro',
-    author:b?.author||'',
-    mins,
-    pages:pagesInSession,
-    bookId:id,
-  });
+  logs.unshift({ts:Date.now(),title:b?.title||'Livro',author:b?.author||'',mins,pages:pagesInSession,bookId:id,tipo:'timer'});
   if(b&&pagesInSession){
     const bi=books.findIndex(x=>x.id===id);
     if(bi>=0){books[bi].currentPage=Math.min(books[bi].pages||9999,(books[bi].currentPage||0)+pagesInSession);}
   }
   saveStorage();renderBooks();showToast(`Sessão encerrada: ${mins} min`);
+}
+
+// pomodoro por livro
+const bookPomTimers={};
+const POM_CIRC=176;
+
+function startBookPomodoro(id){
+  if(bookPomTimers[id]?.running)return;
+  const durInput=document.getElementById('pom-dur-'+id);
+  const mins=parseInt(durInput?.value)||25;
+  let secs=mins*60;
+  const ring=document.getElementById('pom-ring-'+id);
+  const disp=document.getElementById('pom-disp-'+id);
+  const stat=document.getElementById('pom-stat-'+id);
+  if(!ring||!disp||!stat)return;
+  if(bookPomTimers[id]?.iv)clearInterval(bookPomTimers[id].iv);
+  bookPomTimers[id]={running:true,secs,mins};
+  stat.textContent='Em andamento...';
+  stat.style.color='#f87171';
+  bookPomTimers[id].iv=setInterval(()=>{
+    secs--;bookPomTimers[id].secs=secs;
+    const m=Math.floor(secs/60),s=secs%60;
+    disp.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    ring.style.strokeDashoffset=POM_CIRC-(POM_CIRC*(1-secs/(mins*60)));
+    if(secs<=0){
+      clearInterval(bookPomTimers[id].iv);
+      bookPomTimers[id].running=false;
+      stat.textContent='🎉 Concluído!';
+      stat.style.color='#4ade80';
+      disp.textContent='00:00';
+      // som
+      try{
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        [523,659,784].forEach((f,i)=>{
+          const o=ctx.createOscillator(),g=ctx.createGain();
+          o.connect(g);g.connect(ctx.destination);
+          o.frequency.value=f;
+          g.gain.setValueAtTime(0.3,ctx.currentTime+i*0.2);
+          g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.2+0.5);
+          o.start(ctx.currentTime+i*0.2);o.stop(ctx.currentTime+i*0.2+0.5);
+        });
+      }catch(e){}
+      // notificação
+      if('Notification'in window&&Notification.permission==='granted'){
+        const b=books.find(x=>x.id===id);
+        new Notification('🍅 Pomodoro concluído!',{body:`Sessão de "${b?.title||'leitura'}" finalizada. Hora de pausar!`});
+      }
+      // registrar no histórico
+      const bk=books.find(x=>x.id===id);
+      logs.unshift({ts:Date.now(),title:bk?.title||'Livro',author:bk?.author||'',mins,pages:0,bookId:id,tipo:'pomodoro'});
+      saveStorage();
+    }
+  },1000);
+}
+
+function resetBookPomodoro(id){
+  if(bookPomTimers[id]?.iv)clearInterval(bookPomTimers[id].iv);
+  bookPomTimers[id]={running:false};
+  const durInput=document.getElementById('pom-dur-'+id);
+  const mins=parseInt(durInput?.value)||25;
+  const ring=document.getElementById('pom-ring-'+id);
+  const disp=document.getElementById('pom-disp-'+id);
+  const stat=document.getElementById('pom-stat-'+id);
+  if(ring)ring.style.strokeDashoffset=POM_CIRC;
+  if(disp)disp.textContent=`${String(mins).padStart(2,'0')}:00`;
+  if(stat){stat.textContent='Pronto';stat.style.color='#94a3b8';}
+}
+
+// capa info toggle
+function toggleCoverInfo(){
+  const box=document.getElementById('cover-info-box');
+  const visible=box.style.display!=='none';
+  box.style.display=visible?'none':'block';
+  if(!visible)setTimeout(()=>{box.style.display='none';},5000);
+}
+
+// ── BACKUP ──
+function exportarBackup(){
+  const data={books,genres,authors,logs,annualGoal:JSON.parse(localStorage.getItem('annualGoal')||'null'),mainGoal:JSON.parse(localStorage.getItem('mainGoal')||'null'),streakHistory:JSON.parse(localStorage.getItem('streakHistory')||'[]')};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='Libriley_Backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importarBackup(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.books)localStorage.setItem('books',JSON.stringify(d.books));
+      if(d.genres)localStorage.setItem('genres',JSON.stringify(d.genres));
+      if(d.authors)localStorage.setItem('authors',JSON.stringify(d.authors));
+      if(d.logs)localStorage.setItem('logs',JSON.stringify(d.logs));
+      if(d.annualGoal)localStorage.setItem('annualGoal',JSON.stringify(d.annualGoal));
+      if(d.mainGoal)localStorage.setItem('mainGoal',JSON.stringify(d.mainGoal));
+      if(d.streakHistory)localStorage.setItem('streakHistory',JSON.stringify(d.streakHistory));
+      alert('Backup restaurado! O app será recarregado.');location.reload();
+    }catch(err){alert('Arquivo inválido.');}
+  };
+  reader.readAsText(file);
 }
 
 // ── HISTORY ──

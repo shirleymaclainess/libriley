@@ -327,6 +327,102 @@
 
   .shadow-lg  { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.1); }
   .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+
+/* ===== Libriley v3 Shelf Views ===== */
+.shelf-controls{
+  display:flex;
+  gap:8px;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}
+.books-grid-mini{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.book-mini-card{
+  background:#162033;
+  border-radius:18px;
+  padding:10px;
+}
+.book-mini-cover{
+  width:100%;
+  aspect-ratio:2/3;
+  object-fit:cover;
+  border-radius:12px;
+}
+.book-mini-title{
+  font-size:13px;
+  font-weight:700;
+  margin-top:8px;
+  line-height:1.3;
+}
+.books-grid-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.book-list-card{
+  display:flex;
+  gap:14px;
+  background:#162033;
+  border-radius:18px;
+  padding:12px;
+  align-items:center;
+}
+.book-list-cover{
+  width:56px;
+  height:84px;
+  object-fit:cover;
+  border-radius:10px;
+  flex-shrink:0;
+}
+.achievement-toast{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#4f46e5;
+  padding:16px 20px;
+  border-radius:18px;
+  display:flex;
+  gap:14px;
+  align-items:center;
+  z-index:9999;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+.shelf-controls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-left:auto;
+}
+
+.view-btn{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#162033;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#94a3b8;
+  transition:.2s;
+}
+
+.view-btn:hover{
+  background:#1e293b;
+  color:white;
+}
+
+.view-btn.active{
+  background:#4f46e5;
+  color:white;
+  box-shadow:0 0 0 3px rgba(99,102,241,.2);
+}
+
 </style>
 </head>
 <body>
@@ -386,9 +482,83 @@
       <button class="tab-btn" id="tab-finished" onclick="filterBooks('finished')">✅ Lidos</button>
       <button class="tab-btn" id="tab-wishlist" onclick="filterBooks('wishlist')">🔖 Quero ler</button>
       <button class="tab-btn" id="tab-dropped" onclick="filterBooks('dropped')">❌ Abandonados</button>
+
+
+      <div class="shelf-controls ml-auto">
+  
+  <button onclick="setShelfView('default')"
+    id="view-default"
+    class="view-btn active"
+    title="Visual grande">
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor">
+
+      <rect x="3" y="3" width="8" height="8" rx="2" stroke-width="2"/>
+      <rect x="13" y="3" width="8" height="8" rx="2" stroke-width="2"/>
+      <rect x="3" y="13" width="8" height="8" rx="2" stroke-width="2"/>
+      <rect x="13" y="13" width="8" height="8" rx="2" stroke-width="2"/>
+    </svg>
+
+  </button>
+
+  <button onclick="setShelfView('mini')"
+    id="view-mini"
+    class="view-btn"
+    title="Visual compacto">
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor">
+
+      <rect x="4" y="4" width="5" height="5" rx="1.5" stroke-width="2"/>
+      <rect x="10" y="4" width="5" height="5" rx="1.5" stroke-width="2"/>
+      <rect x="16" y="4" width="4" height="5" rx="1.5" stroke-width="2"/>
+
+      <rect x="4" y="11" width="5" height="5" rx="1.5" stroke-width="2"/>
+      <rect x="10" y="11" width="5" height="5" rx="1.5" stroke-width="2"/>
+      <rect x="16" y="11" width="4" height="5" rx="1.5" stroke-width="2"/>
+    </svg>
+
+  </button>
+
+  <button onclick="setShelfView('list')"
+    id="view-list"
+    class="view-btn"
+    title="Visual em lista">
+
+    <svg xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor">
+
+      <line x1="8" y1="6" x2="20" y2="6" stroke-width="2"/>
+      <line x1="8" y1="12" x2="20" y2="12" stroke-width="2"/>
+      <line x1="8" y1="18" x2="20" y2="18" stroke-width="2"/>
+
+      <circle cx="4" cy="6" r="1.5" fill="currentColor"/>
+      <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
+      <circle cx="4" cy="18" r="1.5" fill="currentColor"/>
+    </svg>
+
+  </button>
+
+</div>
     </div>
 
-    <div id="booksGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 items-start"></div>
+    
+
+<div id="booksGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 items-start"></div>
+
   </div>
 
   <div id="historyView" class="hidden">
@@ -1128,6 +1298,396 @@ function finishPomodoro(){
 loadGenres();renderBooks();renderAnnualGoal();
 
   navigator.serviceWorker?.register?.('sw.js');
+
+// ===== LIBRILEY V3 ENHANCEMENTS =====
+let shelfView = localStorage.getItem('shelfView') || 'default';
+let unlockedAchievements = JSON.parse(localStorage.getItem('unlockedAchievements') || '[]');
+let backupSettings = JSON.parse(localStorage.getItem('backupSettings') || '{"frequency":"weekly","lastBackup":null}');
+
+function setShelfView(view){
+  shelfView = view;
+  localStorage.setItem('shelfView', view);
+
+  document.querySelectorAll('#view-default,#view-mini,#view-list')
+    .forEach(b => b.classList.remove('active'));
+
+  const activeBtn = document.getElementById('view-' + view);
+  if(activeBtn) activeBtn.classList.add('active');
+
+  renderBooks();
+}
+
+const originalRenderBooks = renderBooks;
+
+renderBooks = function(){
+  originalRenderBooks();
+
+  const grid = document.getElementById('booksGrid');
+  if(!grid) return;
+
+  const filtered = currentFilter === 'all'
+    ? books
+    : books.filter(b => b.status === currentFilter);
+
+  if(shelfView === 'default'){
+    grid.className = 'grid sm:grid-cols-2 xl:grid-cols-3 gap-5 items-start';
+    return;
+  }
+
+  if(shelfView === 'mini'){
+    grid.className = 'books-grid-mini';
+
+    grid.innerHTML = filtered.map(b => {
+      const coverSrc = b.cover || 'https://placehold.co/600x900/0f172a/334155?text=Sem+Capa';
+
+      return `
+      <div class="book-mini-card">
+        <img src="${coverSrc}" class="book-mini-cover">
+        <div class="book-mini-title">${b.title}</div>
+      </div>`;
+    }).join('');
+
+    return;
+  }
+
+  if(shelfView === 'list'){
+    grid.className = 'books-grid-list';
+
+    grid.innerHTML = filtered.map(b => {
+      const pct = b.pages && b.currentPage
+        ? Math.min(100,Math.floor(b.currentPage/b.pages*100))
+        : 0;
+
+      const color = STATUS_COLOR[b.status] || '#2563eb';
+
+      const coverSrc = b.cover || 'https://placehold.co/600x900/0f172a/334155?text=Sem+Capa';
+
+      return `
+      <div class="book-list-card">
+        <img src="${coverSrc}" class="book-list-cover">
+
+        <div style="flex:1">
+          <h3 style="font-weight:700;font-size:15px;">
+            ${b.title}
+          </h3>
+
+          <div class="progress mt-2">
+            <div class="progress-fill"
+              style="width:${pct}%;background:${color}">
+              ${pct}%
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function showAchievementToast(a){
+  const t = document.createElement('div');
+
+  t.className = 'achievement-toast';
+
+  t.innerHTML = `
+    <div style="font-size:28px">${a.icon}</div>
+    <div>
+      <div style="font-weight:700">
+        Conquista desbloqueada
+      </div>
+      <div style="font-size:13px;opacity:.8">
+        ${a.name}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(t);
+
+  setTimeout(()=>t.remove(),4000);
+}
+
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a => {
+
+    const alreadyUnlocked =
+      unlockedAchievements.includes(a.id);
+
+    const unlockedNow = a.check();
+
+    if(unlockedNow && !alreadyUnlocked){
+
+      unlockedAchievements.push(a.id);
+
+      localStorage.setItem(
+        'unlockedAchievements',
+        JSON.stringify(unlockedAchievements)
+      );
+
+      showAchievementToast(a);
+
+      if('Notification' in window && Notification.permission === 'granted'){
+        new Notification(
+          'Nova conquista desbloqueada!',
+          {
+            body: a.name
+          }
+        );
+      }
+    }
+  });
+}
+
+function evaluateRhythmGoal(){
+
+  const goal =
+    JSON.parse(localStorage.getItem('mainGoal'));
+
+  if(!goal) return;
+
+  const now = new Date();
+
+  let relevantLogs = [];
+
+  if(goal.frequency === 'Semanal'){
+
+    const start = new Date();
+    start.setDate(now.getDate() - 7);
+
+    relevantLogs = logs.filter(
+      l => new Date(l.ts) >= start
+    );
+  }
+  else{
+
+    relevantLogs = logs.filter(l => {
+      const d = new Date(l.ts);
+
+      return (
+        d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear()
+      );
+    });
+  }
+
+  let total = 0;
+
+  if(goal.type === 'Páginas'){
+    total = relevantLogs.reduce(
+      (s,l)=>s+(l.pages||0),0
+    );
+  }
+
+  if(goal.type === 'Minutos'){
+    total = relevantLogs.reduce(
+      (s,l)=>s+(l.mins||0),0
+    );
+  }
+
+  if(goal.type === 'Livros'){
+    total = books.filter(
+      b => b.status === 'finished'
+    ).length;
+  }
+
+  if(total >= Number(goal.quantity)){
+
+    const sh =
+      JSON.parse(localStorage.getItem('streakHistory')) || [];
+
+    const alreadyLogged =
+      sh.find(x => x.goal === `${goal.quantity} ${goal.type}`);
+
+    if(!alreadyLogged){
+
+      sh.unshift({
+        date:new Date().toLocaleDateString('pt-BR'),
+        goal:`${goal.quantity} ${goal.type}`,
+        frequency:goal.frequency
+      });
+
+      localStorage.setItem(
+        'streakHistory',
+        JSON.stringify(sh)
+      );
+
+      showToast('Meta de ritmo concluída!');
+    }
+  }
+}
+
+const originalSaveRhythmGoal = saveRhythmGoal;
+
+saveRhythmGoal = function(){
+  const q=document.getElementById('goalQuantity').value;
+  if(!q){showToast('Defina uma quantidade');return;}
+
+  const goal={
+    frequency:document.getElementById('goalFrequency').value,
+    type:document.getElementById('goalType').value,
+    quantity:q
+  };
+
+  localStorage.setItem('mainGoal',JSON.stringify(goal));
+
+  toggleSection('rhythm-editor');
+  renderGoals();
+  showToast('Meta de ritmo salva!');
+}
+
+const originalExportarBackup = exportarBackup;
+
+exportarBackup = function(){
+  backupSettings.lastBackup = Date.now();
+
+  localStorage.setItem(
+    'backupSettings',
+    JSON.stringify(backupSettings)
+  );
+
+  originalExportarBackup();
+}
+
+function checkBackupReminder(){
+
+  const cfg =
+    JSON.parse(localStorage.getItem('backupSettings'));
+
+  if(!cfg) return;
+
+  if(!cfg.lastBackup){
+    showToast('Faça um backup da sua biblioteca');
+    return;
+  }
+
+  const now = Date.now();
+  const diff = now - cfg.lastBackup;
+
+  const limits = {
+    daily:86400000,
+    weekly:604800000,
+    monthly:2592000000
+  };
+
+  if(diff > limits[cfg.frequency]){
+
+    showToast(
+      'Hora de fazer backup da sua biblioteca'
+    );
+
+    if('Notification' in window && Notification.permission === 'granted'){
+      new Notification(
+        'Backup recomendado',
+        {
+          body:'Exporte um backup do Libriley'
+        }
+      );
+    }
+  }
+}
+
+// menu backup selector
+document.addEventListener('DOMContentLoaded', () => {
+
+  if('Notification' in window && Notification.permission !== 'granted'){
+    Notification.requestPermission();
+  }
+
+  const menu = document.getElementById('menu');
+
+  if(menu){
+    const wrapper = document.createElement('div');
+
+    wrapper.style.marginTop = '12px';
+
+    wrapper.innerHTML = `
+      <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:12px;">
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">
+          Frequência do lembrete de backup
+        </div>
+
+        <select id="backup-frequency" class="input mt-0">
+          <option value="daily">Diariamente</option>
+          <option value="weekly">Semanalmente</option>
+          <option value="monthly">Mensalmente</option>
+        </select>
+      </div>
+    `;
+
+    menu.appendChild(wrapper);
+
+    const sel = document.getElementById('backup-frequency');
+
+    if(sel){
+      sel.value = backupSettings.frequency || 'weekly';
+
+      sel.addEventListener('change', e => {
+        backupSettings.frequency = e.target.value;
+
+        localStorage.setItem(
+          'backupSettings',
+          JSON.stringify(backupSettings)
+        );
+      });
+    }
+  }
+
+  setShelfView(shelfView);
+  checkBackupReminder();
+  checkAchievements();
+});
+
+// pinch gesture
+let initialDistance = null;
+
+document.addEventListener('touchstart', e => {
+  if(e.touches.length === 2){
+    initialDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
+}, {passive:true});
+
+document.addEventListener('touchmove', e => {
+  if(e.touches.length === 2 && initialDistance){
+
+    const currentDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+
+    const scale = currentDistance / initialDistance;
+
+    if(scale > 1.25){
+      setShelfView('default');
+    }
+    else if(scale > 0.9){
+      setShelfView('mini');
+    }
+    else{
+      setShelfView('list');
+    }
+  }
+}, {passive:true});
+
+// auto checks
+const originalSaveBook = saveBook;
+saveBook = function(){
+  originalSaveBook();
+  setTimeout(() => {
+    evaluateRhythmGoal();
+    checkAchievements();
+  }, 100);
+}
+
+const originalDeleteBook = deleteBook;
+deleteBook = function(id){
+  originalDeleteBook(id);
+  setTimeout(() => {
+    evaluateRhythmGoal();
+    checkAchievements();
+  }, 100);
+}
+
 </script>
 </body>
 </html>

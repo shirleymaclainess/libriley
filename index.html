@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link class="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libriley</title>
+<style>
+  /* ==========================================
+     1. RESET E ESTILOS GERAIS
+     ========================================== */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background: #081120;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+  }
+  button {
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.15s ease-in-out;
+  }
+  input, select, textarea {
+    font-family: inherit;
+    color: inherit;
+    outline: none;
+  }
+
+  /* ==========================================
+     2. COMPONENTES DO SISTEMA
+     ========================================== */
+  .card {
+    width: 100%;
+    min-width: 0;
+    background: #162033;
+    border-radius: 24px;
+    padding: 22px;
+  }
+  .input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 18px;
+    padding: 14px;
+    color: white;
+    margin-top: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+  .input:focus {
+    border-color: #6366f1;
+  }
+  .progress {
+    width: 100%;
+    height: 28px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #243247;
+  }
+  .progress-fill {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    transition: width 0.4s;
+  }
+  .star {
+    font-size: 28px;
+    color: #475569;
+    cursor: pointer;
+  }
+  .star.active {
+    color: #facc15;
+  }
+  .details {
+    display: none;
+  }
+  .details.open {
+    display: block;
+  }
+  .badge-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .nav-active {
+    background: #4f46e5 !important;
+  }
+  .tab-btn {
+    padding: 10px 18px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #1e293b;
+    color: #94a3b8;
+    border: none;
+    transition: all 0.15s;
+  }
+  .tab-btn.active {
+    background: #4f46e5;
+    color: white;
+  }
+  .status-tag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    letter-spacing: 0.03em;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+  }
+  .tag-reading  { background: rgba(37, 99, 235, 0.85); color: #bfdbfe; }
+  .tag-finished { background: rgba(22, 163, 74, 0.85); color: #bbf7d0; }
+  .tag-wishlist { background: rgba(147, 51, 234, 0.85); color: #e9d5ff; }
+  .tag-dropped  { background: rgba(220, 38, 38, 0.85); color: #fecaca; }
+
+  .pomodoro-ring {
+    stroke-dasharray: 188;
+    stroke-dashoffset: 188;
+    transition: stroke-dashoffset 0.5s linear;
+  }
+  .hist-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  /* ==========================================
+     3. CLASSES UTILITÁRIAS (SUBSTITUTAS DO TAILWIND)
+     ========================================== */
+  .max-w-5xl { max-width: 64rem; }
+  .max-w-2xl { max-width: 42rem; }
+  .max-w-xs  { max-width: 20rem; }
+  .mx-auto   { margin-left: auto; margin-right: auto; }
+  
+  .w-full { width: 100%; }
+  .w-auto { width: auto; }
+  .w-4    { width: 1rem; }
+  .w-5    { width: 1.25rem; }
+  .h-5    { height: 1.25rem; }
+  .w-10   { width: 2.5rem; }
+  .h-10   { height: 2.5rem; }
+  .w-16   { width: 4rem; }
+  .w-20   { width: 5rem; }
+  .h-20   { height: 5rem; }
+  .w-28   { width: 7rem; }
+  .h-2    { height: 0.5rem; }
+  .h-full { height: 100%; }
+  .aspect-\[2\/3\] { aspect-ratio: 2 / 3; }
+
+  .hidden { display: none !important; }
+  .flex   { display: flex; }
+  .grid   { display: grid; }
+  
+  .flex-wrap       { flex-wrap: wrap; }
+  .flex-1          { flex: 1 1 0%; }
+  .shrink-0        { flex-shrink: 0; }
+  .justify-between { justify-content: space-between; }
+  .justify-center  { justify-content: center; }
+  .items-center    { align-items: center; }
+  .items-start     { align-items: flex-start; }
+  .items-end       { align-items: flex-end; }
+
+  .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  
+  .gap-1 { gap: 0.25rem; }
+  .gap-2 { gap: 0.5rem; }
+  .gap-3 { gap: 0.75rem; }
+  .gap-4 { gap: 1rem; }
+  .gap-5 { gap: 1.25rem; }
+  .gap-6 { gap: 1.5rem; }
+
+  @media (min-width: 640px) {
+    .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .sm\:col-span-2  { grid-column: span 2 / span 2; }
+  }
+  @media (min-width: 1024px) {
+    .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1280px) {
+    .xl\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .p-4    { padding: 1rem; }
+  .p-5    { padding: 1.25rem; }
+  .p-6    { padding: 1.5rem; }
+  .py-2   { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .py-3   { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+  .py-4   { padding-top: 1rem; padding-bottom: 1rem; }
+  .py-8   { padding-top: 2rem; padding-bottom: 2rem; }
+  .py-12  { padding-top: 3rem; padding-bottom: 3rem; }
+  .px-3   { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .px-4   { padding-left: 1rem; padding-right: 1rem; }
+  .px-6   { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .pb-6   { padding-bottom: 1.5rem; }
+  .pl-3   { padding-left: 0.75rem; }
+
+  .my-4     { margin-top: 1rem; margin-bottom: 1rem; }
+  .mb-0     { margin-bottom: 0px; }
+  .mb-1     { margin-bottom: 0.25rem; }
+  .mb-2     { margin-bottom: 0.5rem; }
+  .mb-3     { margin-bottom: 0.75rem; }
+  .mb-4     { margin-bottom: 1rem; }
+  .mb-5     { margin-bottom: 1.25rem; }
+  .mb-6     { margin-bottom: 1.5rem; }
+  .mt-0     { margin-top: 0px; }
+  .mt-0\.5  { margin-top: 0.125rem; }
+  .mt-1     { margin-top: 0.25rem; }
+  .mt-2     { margin-top: 0.5rem; }
+  .mt-3     { margin-top: 0.75rem; }
+  .mt-4     { margin-top: 1rem; }
+  .mt-6     { margin-top: 1.5rem; }
+  
+  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+
+  .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+  .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+  .text-xl  { font-size: 1.25rem; line-height: 1.75rem; }
+  .text-lg  { font-size: 1.125rem; line-height: 1.75rem; }
+  .text-sm  { font-size: 0.875rem; line-height: 1.25rem; }
+  .text-xs  { font-size: 0.75rem; line-height: 1rem; }
+  
+  .font-bold       { font-weight: 700; }
+  .font-semibold   { font-weight: 600; }
+  .italic          { font-style: italic; }
+  .uppercase       { text-transform: uppercase; }
+  .tracking-wider  { letter-spacing: 0.05em; }
+  .text-center     { text-align: center; }
+  .text-right      { text-align: right; }
+  .leading-tight   { line-height: 1.25; }
+  .truncate        { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .text-white       { color: #ffffff; }
+  .text-slate-300   { color: #cbd5e1; }
+  .text-slate-400   { color: #94a3b8; }
+  .text-slate-500   { color: #64748b; }
+  .text-slate-600   { color: #475569; }
+  .text-yellow-400  { color: #facc15; }
+  .text-green-400   { color: #4ade80; }
+  .text-indigo-400  { color: #818cf8; }
+  .text-purple-400  { color: #c084fc; }
+
+  .hover\:text-white:hover { color: #ffffff; }
+
+  .bg-indigo-600  { background-color: #4f46e5; }
+  .bg-indigo-500  { background-color: #6366f1; }
+  .bg-slate-700   { background-color: #334155; }
+  .bg-slate-800   { background-color: #1e293b; }
+  .bg-slate-900   { background-color: #0f172a; }
+  .bg-red-600     { background-color: #dc2626; }
+  .bg-red-800     { background-color: #991b1b; }
+  .bg-green-700   { background-color: #15803d; }
+  .bg-green-500   { background-color: #22c55e; }
+  .bg-yellow-600  { background-color: #ca8a04; }
+  .bg-black\/70   { background-color: rgba(0, 0, 0, 0.7); }
+
+  .hover\:bg-indigo-500:hover { background-color: #6366f1; }
+  .hover\:bg-slate-600:hover  { background-color: #475569; }
+  .hover\:bg-red-500:hover    { background-color: #ef4444; }
+  .hover\:bg-red-700:hover    { background-color: #b91c1c; }
+  .hover\:bg-green-600:hover  { background-color: #16a34a; }
+  .hover\:bg-yellow-500:hover { background-color: #eab308; }
+
+  .rounded-lg   { border-radius: 0.5rem; }
+  .rounded-xl   { border-radius: 0.75rem; }
+  .rounded-2xl  { border-radius: 1rem; }
+  .rounded-3xl  { border-radius: 1.5rem; }
+  .rounded-full { border-radius: 9999px; }
+  
+  .border           { border-width: 1px; border-style: solid; }
+  .border-l-2       { border-left-width: 2px; border-left-style: solid; }
+  .border-slate-700 { border-color: #334155; }
+  .border-indigo-500{ border-color: #6366f1; }
+
+  .relative       { position: relative; }
+  .fixed          { position: fixed; }
+  .absolute       { position: absolute; }
+  .inset-0        { top: 0; right: 0; bottom: 0; left: 0; }
+  .bottom-6       { bottom: 1.5rem; }
+  .left-1\/2      { left: 50%; }
+  .-translate-x-1\/2 { transform: translateX(-50%); }
+
+  .z-50                 { z-index: 50; }
+  .overflow-hidden      { overflow: hidden; }
+  .overflow-auto        { overflow: auto; }
+  .object-cover         { object-fit: cover; }
+  .cursor-pointer       { cursor: pointer; }
+  .inline-block         { display: inline-block; }
+  .opacity-40           { opacity: 0.4; }
+  .opacity-60           { opacity: 0.6; }
+  .transition           { transition: all 0.2s ease-in-out; }
+  .pointer-events-none  { pointer-events: none; }
+
+  .shadow-lg  { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.1); }
+  .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+
+/* ===== Libriley v3 Shelf Views ===== */
+.shelf-controls{
+  display:flex;
+  gap:8px;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}
+.books-grid-mini{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.book-mini-card{
+  background:#162033;
+  border-radius:20px;
+  padding:12px;
+  display: flex;
+  flex-direction: column;
+}
+.book-mini-cover{
+  width:100%;
+  aspect-ratio:2/3;
+  object-fit:cover;
+  border-radius:14px;
+  background: #0f172a;
+}
+.book-mini-title{
+  font-size:14px;
+  font-weight:700;
+  margin-top:8px;
+  line-height:1.3;
+}
+.books-grid-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.book-list-card{
+  display:flex;
+  flex-direction: column;
+  gap:10px;
+  background:#162033;
+  border-radius:18px;
+  padding:14px;
+}
+.book-list-cover{
+  width:56px;
+  height:84px;
+  object-fit:cover;
+  border-radius:10px;
+  flex-shrink:0;
+  background: #0f172a;
+}
+.achievement-toast{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#4f46e5;
+  padding:16px 20px;
+  border-radius:18px;
+  display:flex;
+  gap:14px;
+  align-items:center;
+  z-index:9999;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+.shelf-controls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-left:auto;
+}
+
+.view-btn{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#162033;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#94a3b8;
+  transition:.2s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.view-btn:hover{
+  background:#1e293b;
+  color:white;
+}
+
+.view-btn.active{
+  background:#4f46e5;
+  color:white;
+  box-shadow:0 0 0 3px rgba(99,102,241,.2);
+}
+
+.progress-thin {
+  height: 8px !important;
+}
+
+.compact-pomo-btn {
+  background: #dc2626;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.1s;
+}
+.compact-pomo-btn:active {
+  transform: scale(0.9);
+}
+
+</style>
+</head>
+<body>
+<div class="max-w-5xl mx-auto p-4 pb-6">
+
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold">Libriley</h1>
+      <p class="text-slate-400 text-sm mt-1">Seu painel pessoal de leitura</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <button onclick="openBookModal()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-3 rounded-2xl font-semibold text-sm">+ Livro</button>
+      <button onclick="toggleMenu()" class="bg-slate-700 hover:bg-slate-600 px-4 py-3 rounded-2xl text-lg">☰</button>
+    </div>
+  </div>
+
+  <div id="menu" class="hidden card mb-5">
+    <div class="grid grid-cols-4 gap-2">
+      <button id="nav-library" onclick="showView('library')" class="nav-btn nav-active rounded-2xl text-sm font-semibold" style="padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:1.2rem">📚</span><span>Biblioteca</span></button>
+      <button id="nav-history" onclick="showView('history')" class="nav-btn bg-slate-700 rounded-2xl text-sm font-semibold" style="padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:1.2rem">📋</span><span>Histórico</span></button>
+      <button id="nav-goals" onclick="showView('goals')" class="nav-btn bg-slate-700 rounded-2xl text-sm font-semibold" style="padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:1.2rem">🎯</span><span>Metas</span></button>
+      <button id="nav-achievements" onclick="showView('achievements')" class="nav-btn bg-slate-700 rounded-2xl text-sm font-semibold" style="padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;"><span style="font-size:1.2rem">🏆</span><span>Conquistas</span></button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #334155;">
+      <button onclick="exportarBackup()" style="padding:10px;background:#1e293b;border:1px solid #334155;border-radius:12px;font-size:13px;cursor:pointer;color:#94a3b8;">📤 Exportar backup</button>
+      <label style="padding:10px;background:#1e293b;border:1px solid #334155;border-radius:12px;font-size:13px;cursor:pointer;color:#94a3b8;text-align:center;display:flex;align-items:center;justify-content:center;gap:4px;">
+        📥 Restaurar
+        <input type="file" accept=".json" onchange="importarBackup(event)" style="display:none">
+      </label>
+    </div>
+  </div>
+
+  <div id="libraryView">
+    <div class="card mb-5" id="annual-goal-card">
+      <div class="flex justify-between items-start mb-3">
+        <div>
+          <p class="text-slate-400 text-sm">Meta anual <span id="ano-atual" class="font-semibold text-white"></span></p>
+          <h2 class="text-3xl font-bold mt-1" id="annual-progress-text">0 / ?</h2>
+        </div>
+        <button onclick="showView('goals');toggleMenu()" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-xl text-xs text-slate-300">Editar meta</button>
+      </div>
+      <div class="progress mt-2">
+        <div class="progress-fill bg-indigo-600" id="annual-bar" style="width:0%">0%</div>
+      </div>
+      <p class="text-slate-400 text-xs mt-2" id="annual-subtitle"></p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3 mb-5">
+      <div class="card p-4 text-center"><p class="text-slate-400 text-xs">Páginas lidas</p><h3 id="pagesRead" class="text-2xl font-bold mt-1">0</h3></div>
+      <div class="card p-4 text-center"><p class="text-slate-400 text-xs">Lendo agora</p><h3 id="readingNow" class="text-2xl font-bold mt-1">0</h3></div>
+      <div class="card p-4 text-center"><p class="text-slate-400 text-xs">Total na estante</p><h3 id="booksCount" class="text-2xl font-bold mt-1">0</h3></div>
+    </div>
+
+    <div class="flex gap-2 mb-4 flex-wrap">
+      <button class="tab-btn active" id="tab-all" onclick="filterBooks('all')">Todos</button>
+      <button class="tab-btn" id="tab-reading" onclick="filterBooks('reading')">📖 Lendo</button>
+      <button class="tab-btn" id="tab-finished" onclick="filterBooks('finished')">✅ Lidos</button>
+      <button class="tab-btn" id="tab-wishlist" onclick="filterBooks('wishlist')">🔖 Quero ler</button>
+      <button class="tab-btn" id="tab-dropped" onclick="filterBooks('dropped')">❌ Abandonados</button>
+
+      <div class="shelf-controls ml-auto">
+        <button onclick="setShelfView('default')" id="view-default" class="view-btn" title="Visual grande">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <rect x="3" y="3" width="8" height="8" rx="2" stroke-width="2"/>
+            <rect x="13" y="3" width="8" height="8" rx="2" stroke-width="2"/>
+            <rect x="3" y="13" width="8" height="8" rx="2" stroke-width="2"/>
+            <rect x="13" y="13" width="8" height="8" rx="2" stroke-width="2"/>
+          </svg>
+        </button>
+        <button onclick="setShelfView('mini')" id="view-mini" class="view-btn" title="Visual compacto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <rect x="4" y="4" width="5" height="5" rx="1.5" stroke-width="2"/>
+            <rect x="10" y="4" width="5" height="5" rx="1.5" stroke-width="2"/>
+            <rect x="16" y="4" width="4" height="5" rx="1.5" stroke-width="2"/>
+            <rect x="4" y="11" width="5" height="5" rx="1.5" stroke-width="2"/>
+            <rect x="10" y="11" width="5" height="5" rx="1.5" stroke-width="2"/>
+            <rect x="16" y="11" width="4" height="5" rx="1.5" stroke-width="2"/>
+          </svg>
+        </button>
+        <button onclick="setShelfView('list')" id="view-list" class="view-btn" title="Visual em lista">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <line x1="8" y1="6" x2="20" y2="6" stroke-width="2"/>
+            <line x1="8" y1="12" x2="20" y2="12" stroke-width="2"/>
+            <line x1="8" y1="18" x2="20" y2="18" stroke-width="2"/>
+            <circle cx="4" cy="6" r="1.5" fill="currentColor"/>
+            <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
+            <circle cx="4" cy="18" r="1.5" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="booksGrid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 items-start"></div>
+  </div>
+
+  <div id="historyView" class="hidden">
+    <div class="card">
+      <div class="flex justify-between items-center mb-5">
+        <h2 class="text-xl font-bold">Histórico de leitura</h2>
+        <select id="hist-filter" onchange="renderHistory()" class="input w-auto mt-0 text-sm py-2">
+          <option value="all">Todos</option>
+          <option value="week">Esta semana</option>
+          <option value="month">Este mês</option>
+        </select>
+      </div>
+      <div id="historyContainer"></div>
+    </div>
+  </div>
+
+  <div id="goalsView" class="hidden">
+    <div class="card mb-4">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h2 class="text-xl font-bold">Meta anual de livros</h2>
+          <p class="text-slate-400 text-sm mt-1">Quantos livros você quer ler em <span id="goals-ano"></span>?</p>
+        </div>
+        <button onclick="toggleSection('annual-editor')" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-semibold">Editar</button>
+      </div>
+      <div class="bg-slate-900 rounded-2xl p-5 mb-4">
+        <h3 class="text-3xl font-bold" id="goal-annual-display">Nenhuma meta definida</h3>
+        <div class="progress mt-3">
+          <div class="progress-fill bg-indigo-600" id="goal-annual-bar" style="width:0%">0%</div>
+        </div>
+        <p class="text-slate-400 text-sm mt-2" id="goal-annual-info"></p>
+      </div>
+      <div id="annual-editor" class="hidden">
+        <div class="flex gap-3 items-end">
+          <div class="flex-1"><label class="text-slate-400 text-sm">Livros em <span id="editor-ano"></span></label><input id="input-annual-goal" type="number" class="input" placeholder="Ex: 24" min="1"></div>
+          <button onclick="saveAnnualGoal()" class="bg-indigo-600 hover:bg-indigo-500 py-3 px-6 rounded-xl font-semibold text-sm mb-0">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h2 class="text-xl font-bold">Meta de ritmo</h2>
+          <p class="text-slate-400 text-sm mt-1">Seu objetivo de leitura recorrente</p>
+        </div>
+        <button onclick="toggleSection('rhythm-editor')" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-semibold">Editar</button>
+      </div>
+      <div class="bg-slate-900 rounded-2xl p-5 mb-4">
+        <h3 class="text-2xl font-bold" id="goal-rhythm-display">Nenhuma meta de ritmo</h3>
+        <p class="text-slate-400 text-sm mt-1" id="goal-rhythm-info"></p>
+      </div>
+      <div id="rhythm-editor" class="hidden">
+        <div class="grid grid-cols-3 gap-3">
+          <div><label class="text-slate-400 text-sm">Frequência</label>
+            <select id="goalFrequency" class="input"><option value="Semanal">Semanal</option><option value="Mensal">Mensal</option></select></div>
+          <div><label class="text-slate-400 text-sm">Tipo</label>
+            <select id="goalType" class="input"><option value="Páginas">Páginas</option><option value="Minutos">Minutos</option><option value="Livros">Livros</option></select></div>
+          <div><label class="text-slate-400 text-sm">Quantidade</label>
+            <input id="goalQuantity" type="number" class="input" placeholder="Ex: 200"></div>
+        </div>
+        <button onclick="saveRhythmGoal()" class="bg-indigo-600 hover:bg-indigo-500 py-3 w-full rounded-xl mt-3 font-semibold text-sm">Salvar meta de ritmo</button>
+      </div>
+      <div class="mt-4">
+        <p class="text-slate-400 text-sm font-semibold mb-3">🔥 Histórico de conclusões</p>
+        <div id="streakContainer" class="flex gap-2 flex-wrap"></div>
+        <div id="streakTooltip" class="hidden fixed z-50 bg-slate-900 border border-slate-700 rounded-2xl p-4 text-sm shadow-2xl max-w-xs pointer-events-none"></div>
+        <button onclick="toggleSection('streakHistory')" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-xs mt-3">Ver histórico completo</button>
+        <div id="streakHistory" class="hidden mt-3 grid sm:grid-cols-2 gap-2"></div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <h2 class="text-xl font-bold mb-4">Estatísticas</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5" id="stats-grid"></div>
+      <p class="text-slate-400 text-sm font-semibold mb-3">Gêneros mais lidos</p>
+      <div id="generos-chart" class="space-y-2 mb-5"></div>
+      <p class="text-slate-400 text-sm font-semibold mb-3">Páginas lidas por mês</p>
+      <div id="paginas-mes" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <div id="achievementsView" class="hidden">
+    <div class="card">
+      <h2 class="text-xl font-bold mb-5">🏆 Conquistas</h2>
+      <div id="achievements-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal" class="hidden fixed inset-0 bg-black/70 p-4 overflow-auto z-50">
+  <div class="bg-slate-800 max-w-2xl mx-auto rounded-3xl p-6 my-4">
+    <div class="flex justify-between items-center mb-5">
+      <h2 class="text-xl font-bold" id="modal-title">Novo livro</h2>
+      <button onclick="closeModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div><label class="text-slate-400 text-sm">Título *</label><input id="title" class="input"></div>
+      <div><label class="text-slate-400 text-sm">Autor</label><input id="author" list="authors-list" class="input"><datalist id="authors-list"></datalist></div>
+      <div>
+        <label class="text-slate-400 text-sm">Gênero</label>
+        <div class="flex gap-2 mt-1">
+          <select id="genre" class="input mt-0 flex-1"></select>
+          <button onclick="addGenre()" type="button" class="bg-indigo-600 hover:bg-indigo-500 px-4 rounded-xl text-sm font-semibold shrink-0">+</button>
+          <button onclick="removeGenre()" type="button" class="bg-red-800 hover:bg-red-700 px-3 rounded-xl text-sm shrink-0" title="Remover gênero">🗑</button>
+        </div>
+      </div>
+      <div>
+        <label class="text-slate-400 text-sm">Total de páginas do livro</label>
+        <input id="pages" class="input" type="number" placeholder="Ex: 320">
+      </div>
+      <div><label class="text-slate-400 text-sm">Página atual (marcador)</label><input id="currentPage" class="input" type="number" placeholder="Em que página você parou?"></div>
+      <div><label class="text-slate-400 text-sm">Status</label>
+        <select id="status" class="input">
+          <option value="reading">📖 Lendo</option>
+          <option value="finished">✅ Lido</option>
+          <option value="wishlist">🔖 Quero Ler</option>
+          <option value="dropped">❌ Abandonado</option>
+        </select>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="text-slate-400 text-sm flex items-center gap-2">Capa do livro
+          <span id="cover-info-btn" onclick="toggleCoverInfo()" style="background:#334155;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;user-select:none;">i</span>
+        </label>
+        <div id="cover-info-box" style="display:none;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:10px 14px;font-size:12px;color:#94a3b8;margin-top:6px;line-height:1.6;">
+          📐 Tamanho ideal: <strong style="color:#fff">600 × 900px</strong> (proporção 2:3)<br>
+          🔗 Cole uma URL de imagem ou envie um arquivo.<br>
+          💡 Dica: use capas do Google Imagens ou OpenLibrary.
+        </div>
+        <input id="cover-url" class="input" placeholder="URL da capa (opcional)">
+        <input id="cover" class="input mt-2" type="file" accept="image/*">
+      </div>
+    </div>
+    <div class="mt-4"><label class="text-slate-400 text-sm">Resenha</label><textarea id="review" class="input" rows="3"></textarea></div>
+    <div class="mt-4"><label class="text-slate-400 text-sm">Citação ou trecho favorito</label><textarea id="quote" class="input" rows="2"></textarea></div>
+    <div class="mt-4"><label class="text-slate-400 text-sm">Nota</label>
+      <div id="stars" class="flex gap-1 mt-2">
+        <span class="star" onclick="setRating(1)">★</span><span class="star" onclick="setRating(2)">★</span>
+        <span class="star" onclick="setRating(3)">★</span><span class="star" onclick="setRating(4)">★</span>
+        <span class="star" onclick="setRating(5)">★</span>
+      </div>
+    </div>
+    <button onclick="saveBook()" class="bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl w-full mt-6 font-semibold">Salvar livro</button>
+  </div>
+</div>
+
+<script>
+// ── STORAGE ──
+let books=JSON.parse(localStorage.getItem('books'))||[];
+let genres=JSON.parse(localStorage.getItem('genres'))||['Fantasia','Romance','Ficção Científica','Terror','Suspense','Biografia'];
+let authors=JSON.parse(localStorage.getItem('authors'))||[];
+let logs=JSON.parse(localStorage.getItem('logs'))||[];
+let rating=0;
+let editingBookId=null;
+let currentFilter='all';
+
+function saveStorage(){
+  localStorage.setItem('books',JSON.stringify(books));
+  localStorage.setItem('genres',JSON.stringify(genres));
+  localStorage.setItem('authors',JSON.stringify(authors));
+  localStorage.setItem('logs',JSON.stringify(logs));
+}
+function showToast(msg){
+  const t=document.createElement('div');
+  t.innerText=msg;
+  t.className='fixed bottom-6 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-6 py-3 rounded-2xl z-50 shadow-lg text-sm';
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2200);
+}
+
+// ── MENU / NAV ──
+function toggleMenu(){document.getElementById('menu').classList.toggle('hidden');}
+function showView(v){
+  ['library','history','goals','achievements'].forEach(x=>{
+    document.getElementById(x+'View').classList.add('hidden');
+    document.getElementById('nav-'+x).classList.remove('nav-active');
+    document.getElementById('nav-'+x).classList.add('bg-slate-700');
+  });
+  document.getElementById(v+'View').classList.remove('hidden');
+  document.getElementById('nav-'+v).classList.remove('bg-slate-700');
+  document.getElementById('nav-'+v).classList.add('nav-active');
+  document.getElementById('menu').classList.add('hidden');
+  if(v==='goals')renderGoals();
+  if(v==='achievements')renderAchievements();
+  if(v==='history')renderHistory();
+}
+function toggleSection(id){document.getElementById(id).classList.toggle('hidden');}
+
+// ── BOOK MODAL ──
+function openBookModal(id){
+  editingBookId=id||null;
+  const b=id?books.find(x=>x.id===id):{};
+  document.getElementById('modal-title').textContent=id?'Editar livro':'Novo livro';
+  ['title','author','review','quote'].forEach(f=>document.getElementById(f).value=b[f]||'');
+  document.getElementById('pages').value=b.pages||'';
+  document.getElementById('currentPage').value=b.currentPage||'';
+  document.getElementById('status').value=b.status||'reading';
+  document.getElementById('cover-url').value=b.cover&&b.cover.startsWith('http')?b.cover:'';
+  document.getElementById('cover').value='';
+  loadGenres();
+  if(b.genre)document.getElementById('genre').value=b.genre;
+  setRating(b.rating||0);
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modal').classList.add('hidden');}
+function addGenre(){
+  const g=prompt('Nome do novo gênero:');
+  if(!g||!g.trim())return;
+  const cg=g.trim();
+  if(!genres.includes(cg)){genres.push(cg);saveStorage();}
+  loadGenres();
+  document.getElementById('genre').value=cg;
+  showToast('Gênero adicionado');
+}
+function removeGenre(){
+  const sel=document.getElementById('genre').value;
+  if(!sel)return;
+  if(!confirm(`Remover o gênero "${sel}"? Livros com esse gênero não serão afetados.`))return;
+  genres=genres.filter(g=>g!==sel);
+  saveStorage();loadGenres();showToast('Gênero removido');
+}
+function loadGenres(){
+  const s=document.getElementById('genre');
+  s.innerHTML=genres.map(g=>`<option value="${g}">${g}</option>`).join('');
+  document.getElementById('authors-list').innerHTML=authors.map(a=>`<option value="${a}"></option>`).join('');
+}
+function setRating(v){
+  rating=v;
+  document.querySelectorAll('#stars .star').forEach((s,i)=>s.classList.toggle('active',i<v));
+}
+function saveBook(){
+  const title=document.getElementById('title').value.trim();
+  if(!title){showToast('Título é obrigatório');return;}
+  const author=document.getElementById('author').value.trim();
+  if(author&&!authors.includes(author)){authors.push(author);}
+  const file=document.getElementById('cover').files[0];
+  const urlCover=document.getElementById('cover-url').value.trim();
+  const doSave=(coverData)=>{
+    const existing=books.find(b=>b.id===editingBookId);
+    const bd={
+      id:editingBookId||Date.now(),title,author,
+      genre:document.getElementById('genre').value,
+      pages:parseInt(document.getElementById('pages').value)||0,
+      currentPage:parseInt(document.getElementById('currentPage').value)||0,
+      status:document.getElementById('status').value,
+      review:document.getElementById('review').value,
+      quote:document.getElementById('quote').value,
+      rating,
+      cover:coverData||(existing?.cover||''),
+      addedAt:existing?.addedAt||Date.now(),
+    };
+    if(editingBookId){books=books.map(b=>b.id===editingBookId?bd:b);}
+    else{books.unshift(bd);}
+    saveStorage();renderBooks();renderStats();closeModal();showToast('Livro salvo!');
+  };
+  if(file){const r=new FileReader();r.onload=e=>doSave(e.target.result);r.readAsDataURL(file);}
+  else if(urlCover){doSave(urlCover);}
+  else{doSave('');}
+}
+
+// ── RENDER BOOKS ──
+function filterBooks(f){
+  currentFilter=f;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+f).classList.add('active');
+  renderBooks();
+}
+
+const STATUS_TAG={
+  reading:{cls:'tag-reading',label:'Lendo'},
+  finished:{cls:'tag-finished',label:'Lido'},
+  wishlist:{cls:'tag-wishlist',label:'Quero ler'},
+  dropped:{cls:'tag-dropped',label:'Abandonado'},
+};
+const STATUS_COLOR={reading:'#2563eb',finished:'#16a34a',wishlist:'#9333ea',dropped:'#dc2626'};
+
+function renderBooks(){
+  const filtered=currentFilter==='all'?books:books.filter(b=>b.status===currentFilter);
+  const lendo=books.filter(b=>b.status==='reading').length;
+  document.getElementById('pagesRead').innerText=books.reduce((s,b)=>s+(b.currentPage||0),0).toLocaleString('pt-BR');
+  document.getElementById('readingNow').innerText=lendo;
+  document.getElementById('booksCount').innerText=books.length;
+  renderAnnualGoal();
+  const grid=document.getElementById('booksGrid');
+  if(!filtered.length){grid.innerHTML=`<div class="col-span-3 text-center text-slate-500 py-12">Nenhum livro aqui ainda.</div>`;return;}
+
+  if(shelfView === 'default'){
+    grid.className = 'grid sm:grid-cols-2 xl:grid-cols-3 gap-5 items-start';
+    grid.innerHTML=filtered.map(b=>{
+      const pct=b.pages&&b.currentPage?Math.min(100,Math.floor(b.currentPage/b.pages*100)):0;
+      const tag=STATUS_TAG[b.status]||STATUS_TAG.reading;
+      const color=STATUS_COLOR[b.status]||'#2563eb';
+      const coverSrc=b.cover||`https://placehold.co/600x900/0f172a/334155?text=Sem+Capa`;
+      return`<div class="card overflow-hidden">
+        <div class="relative">
+          <img src="${coverSrc}" class="w-full aspect-[2/3] object-cover rounded-2xl bg-slate-900" onerror="this.src='https://placehold.co/600x900/0f172a/334155?text=Sem+Capa'">
+          <span class="status-tag ${tag.cls}">${tag.label}</span>
+        </div>
+        <div class="mt-3">
+          <h2 class="text-lg font-bold leading-tight">${b.title}</h2>
+          ${b.author?`<p class="text-slate-400 text-sm mt-1">${b.author}</p>`:''}
+          ${b.genre?`<span class="inline-block mt-2 text-xs bg-slate-700 px-3 py-1 rounded-lg text-slate-300">${b.genre}</span>`:''}
+        </div>
+        <div class="mt-3">
+          <div class="progress">
+            <div class="progress-fill" style="width:${pct}%;background:${color}">${b.status==='finished'?'Lido ✓':pct+'%'}</div>
+          </div>
+          ${b.pages?`<p class="text-slate-500 text-xs mt-1">${b.currentPage||0} / ${b.pages} págs</p>`:''}
+        </div>
+        <div class="mt-3 bg-slate-900 rounded-2xl p-4">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-weight:600;font-size:14px;">🍅 Pomodoro</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:12px;color:#94a3b8;">min:</span>
+              <input id="pom-dur-${b.id}" type="number" value="25" min="1" max="99"
+                style="width:48px;background:#0f172a;border:1px solid #334155;border-radius:10px;padding:4px 8px;color:white;font-size:13px;text-align:center;">
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="position:relative;width:72px;height:72px;flex-shrink:0;">
+              <svg width="72" height="72">
+                <circle cx="36" cy="36" r="28" fill="none" stroke="#1e293b" stroke-width="6"/>
+                <circle id="pom-ring-${b.id}" cx="36" cy="36" r="28" fill="none" stroke="#ef4444" stroke-width="6"
+                  stroke-dasharray="176" stroke-dashoffset="176"
+                  style="transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .5s linear;"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+                <span id="pom-disp-${b.id}" style="font-size:12px;font-weight:700;">25:00</span>
+              </div>
+            </div>
+            <div style="flex:1;">
+              <div id="pom-stat-${b.id}" style="font-size:12px;color:#94a3b8;margin-bottom:8px;">Pronto</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                <button onclick="startBookPomodoro(${b.id})"
+                  style="background:#dc2626;padding:7px;border-radius:10px;font-size:12px;font-weight:600;">▶ Iniciar</button>
+                <button onclick="resetBookPomodoro(${b.id})"
+                  style="background:#1e293b;border:1px solid #334155;padding:7px;border-radius:10px;font-size:12px;font-weight:600;">Resetar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 flex gap-2">
+          <button onclick="toggleDetails(${b.id})" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded-xl text-sm font-semibold">Detalhes</button>
+          <button onclick="openBookModal(${b.id})" class="bg-yellow-600 hover:bg-yellow-500 w-10 rounded-xl text-sm">✎</button>
+          <button onclick="deleteBook(${b.id})" class="bg-red-800 hover:bg-red-700 w-10 rounded-xl text-sm">🗑</button>
+        </div>
+        <div id="details-${b.id}" class="details mt-3">
+          <div class="bg-slate-900 rounded-2xl p-4 space-y-2 text-sm">
+            <p class="text-slate-400">Autor: <span class="text-white">${b.author||'—'}</span></p>
+            <p class="text-slate-400">Gênero: <span class="text-white">${b.genre||'—'}</span></p>
+            ${b.rating?`<p class="text-slate-400">Nota: <span class="text-yellow-400">${'★'.repeat(b.rating)}</span></p>`:''}
+            ${b.review?`<p class="text-slate-400 mt-2">Resenha:</p><p class="text-slate-300 text-sm">${b.review}</p>`:''}
+            ${b.quote?`<div class="border-l-2 border-indigo-500 pl-3 mt-2 italic text-slate-300">"${b.quote}"</div>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  if(shelfView === 'mini'){
+    grid.className = 'books-grid-mini';
+    grid.innerHTML = filtered.map(b => {
+      const pct=b.pages&&b.currentPage?Math.min(100,Math.floor(b.currentPage/b.pages*100)):0;
+      const tag=STATUS_TAG[b.status]||STATUS_TAG.reading;
+      const color=STATUS_COLOR[b.status]||'#2563eb';
+      const coverSrc = b.cover || 'https://placehold.co/600x900/0f172a/334155?text=Sem+Capa';
+      return `
+      <div class="book-mini-card">
+        <div class="relative w-full">
+          <img src="${coverSrc}" class="book-mini-cover" onerror="this.src='https://placehold.co/600x900/0f172a/334155?text=Sem+Capa'">
+          <span class="status-tag ${tag.cls}">${tag.label}</span>
+        </div>
+        <div class="book-mini-title truncate">${b.title}</div>
+        
+        <div class="mt-2 flex items-center justify-between gap-2">
+          <div class="progress progress-thin flex-1" style="margin:0">
+            <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+          <button onclick="startBookPomodoro(${b.id})" class="compact-pomo-btn shrink-0" title="Iniciar Pomodoro 25m">🍅</button>
+        </div>
+        <div id="pom-stat-${b.id}" class="text-xs text-slate-400 mt-1 text-center truncate">Pronto</div>
+
+        <div class="mt-2 flex gap-1">
+          <button onclick="toggleDetails(${b.id})" class="flex-1 bg-slate-700 text-xs py-1.5 rounded-lg font-semibold">Detalhes</button>
+          <button onclick="openBookModal(${b.id})" class="bg-yellow-600 px-2.5 rounded-lg text-xs">✎</button>
+        </div>
+
+        <div id="details-${b.id}" class="details mt-2">
+          <div class="bg-slate-900 rounded-xl p-2.5 space-y-1 text-xs">
+            <p class="text-slate-400">Autor: <span class="text-white">${b.author||'—'}</span></p>
+            ${b.pages?`<p class="text-slate-500">${b.currentPage||0}/${b.pages} págs</p>`:''}
+            ${b.review?`<p class="text-slate-300 italic mt-1 font-light">"${b.review}"</p>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  if(shelfView === 'list'){
+    grid.className = 'books-grid-list';
+    grid.innerHTML = filtered.map(b => {
+      const pct = b.pages && b.currentPage ? Math.min(100,Math.floor(b.currentPage/b.pages*100)) : 0;
+      const tag=STATUS_TAG[b.status]||STATUS_TAG.reading;
+      const color = STATUS_COLOR[b.status] || '#2563eb';
+      const coverSrc = b.cover || 'https://placehold.co/600x900/0f172a/334155?text=Sem+Capa';
+      return `
+      <div class="book-list-card">
+        <div class="flex items-center gap-4 w-full min-w-0">
+          <img src="${coverSrc}" class="book-list-cover" onerror="this.src='https://placehold.co/600x900/0f172a/334155?text=Sem+Capa'">
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-center gap-2">
+              <h3 class="font-bold text-base truncate" style="margin:0">${b.title}</h3>
+              <span class="status-tag ${tag.cls}" style="position:static; font-size:10px; padding:3px 8px; border-radius:8px; font-weight:700;">${tag.label}</span>
+            </div>
+            ${b.author?`<p class="text-slate-400 text-xs mt-0.5">${b.author}</p>`:''}
+            
+            <div class="flex items-center gap-3 mt-3">
+              <div class="progress progress-thin flex-1" style="margin:0">
+                <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
+              </div>
+              <span class="text-xs text-slate-400 shrink-0">${pct}%</span>
+              <button onclick="startBookPomodoro(${b.id})" class="compact-pomo-btn shrink-0" title="Iniciar Pomodoro 25m">🍅</button>
+              <span id="pom-stat-${b.id}" class="text-xs text-slate-500 shrink-0" style="min-width:40px; text-align:right;">Pronto</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 justify-end mt-1">
+          <button onclick="toggleDetails(${b.id})" class="bg-slate-700 text-xs px-3 py-1.5 rounded-lg font-semibold">Detalhes</button>
+          <button onclick="openBookModal(${b.id})" class="bg-yellow-600 px-3 py-1.5 rounded-lg text-xs">✎</button>
+          <button onclick="deleteBook(${b.id})" class="bg-red-800 px-3 py-1.5 rounded-lg text-xs">🗑</button>
+        </div>
+
+        <div id="details-${b.id}" class="details w-full">
+          <div class="bg-slate-900 rounded-xl p-3 space-y-1 text-xs mt-1">
+            <p class="text-slate-400">Gênero: <span class="text-white">${b.genre||'—'}</span></p>
+            ${b.pages?`<p class="text-slate-400">Progresso: <span class="text-white">${b.currentPage||0} / ${b.pages} páginas</span></p>`:''}
+            ${b.review?`<p class="text-slate-400 mt-1">Resenha: <span class="text-slate-300">${b.review}</span></p>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+function deleteBook(id){
+  if(!confirm('Remover este livro?'))return;
+  books=books.filter(b=>b.id!==id);
+  saveStorage();renderBooks();renderStats();showToast('Livro removido');
+}
+function toggleDetails(id){document.getElementById('details-'+id).classList.toggle('open');}
+
+// ── TIMER ──
+let timers={};
+function startTimer(id){
+  if(timers[id])return;
+  timers[id]={secs:0,interval:setInterval(()=>{
+    timers[id].secs++;
+    const s=timers[id].secs;
+    const el=document.getElementById('timer-'+id);
+    if(el)el.innerText=[Math.floor(s/3600),Math.floor((s%3600)/60),s%60].map(x=>String(x).padStart(2,'0')).join(':');
+  },1000)};
+}
+function stopTimer(id){
+  if(!timers[id])return;
+  const b=books.find(x=>x.id===id);
+  const mins=Math.floor(timers[id].secs/60);
+  clearInterval(timers[id].interval);delete timers[id];
+  const el=document.getElementById('timer-'+id);if(el)el.innerText='00:00:00';
+  const pagesInSession=parseInt(prompt('Quantas páginas você leu nessa sessão? (deixe em branco para pular)')||'0')||0;
+  logs.unshift({ts:Date.now(),title:b?.title||'Livro',author:b?.author||'',mins,pages:pagesInSession,bookId:id,tipo:'timer'});
+  if(b&&pagesInSession){
+    const bi=books.findIndex(x=>x.id===id);
+    if(bi>=0){books[bi].currentPage=Math.min(books[bi].pages||9999,(books[bi].currentPage||0)+pagesInSession);}
+  }
+  saveStorage();renderBooks();showToast(`Sessão encerrada: ${mins} min`);
+}
+
+// pomodoro por livro
+const bookPomTimers={};
+const POM_CIRC=176;
+
+function startBookPomodoro(id){
+  if(bookPomTimers[id]?.running)return;
+  const durInput=document.getElementById('pom-dur-'+id);
+  const mins=parseInt(durInput?.value)||25;
+  let secs=mins*60;
+  const ring=document.getElementById('pom-ring-'+id);
+  const disp=document.getElementById('pom-disp-'+id);
+  const stat=document.getElementById('pom-stat-'+id);
+  
+  if(bookPomTimers[id]?.iv)clearInterval(bookPomTimers[id].iv);
+  bookPomTimers[id]={running:true,secs,mins};
+  if(stat){
+    stat.textContent='Lendo...';
+    stat.style.color='#f87171';
+  }
+  
+  bookPomTimers[id].iv=setInterval(()=>{
+    secs--;bookPomTimers[id].secs=secs;
+    const m=Math.floor(secs/60),s=secs%60;
+    if(disp) disp.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(ring) ring.style.strokeDashoffset=POM_CIRC-(POM_CIRC*(1-secs/(mins*60)));
+    if(stat) stat.textContent = `${m}m rest.`;
+    
+    if(secs<=0){
+      clearInterval(bookPomTimers[id].iv);
+      bookPomTimers[id].running=false;
+      if(stat){
+        stat.textContent = '🎉 Fim!';
+        stat.style.color='#4ade80';
+      }
+      if(disp) disp.textContent='00:00';
+      try{
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        [523,659,784].forEach((f,i)=>{
+          const o=ctx.createOscillator(),g=ctx.createGain();
+          o.connect(g);g.connect(ctx.destination);
+          o.frequency.value=f;
+          g.gain.setValueAtTime(0.3,ctx.currentTime+i*0.2);
+          g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.2+0.5);
+          o.start(ctx.currentTime+i*0.2);o.stop(ctx.currentTime+i*0.2+0.5);
+        });
+      }catch(e){}
+      if('Notification'in window&&Notification.permission==='granted'){
+        const b=books.find(x=>x.id===id);
+        new Notification('🍅 Pomodoro concluído!',{body:`Sessão de "${b?.title||'leitura'}" finalizada. Hora de pausar!`});
+      }
+      const bk=books.find(x=>x.id===id);
+      logs.unshift({ts:Date.now(),title:bk?.title||'Livro',author:bk?.author||'',mins,pages:0,bookId:id,tipo:'pomodoro'});
+      saveStorage();
+    }
+  },1000);
+}
+
+function resetBookPomodoro(id){
+  if(bookPomTimers[id]?.iv)clearInterval(bookPomTimers[id].iv);
+  bookPomTimers[id]={running:false};
+  const durInput=document.getElementById('pom-dur-'+id);
+  const mins=parseInt(durInput?.value)||25;
+  const ring=document.getElementById('pom-ring-'+id);
+  const disp=document.getElementById('pom-disp-'+id);
+  const stat=document.getElementById('pom-stat-'+id);
+  if(ring)ring.style.strokeDashoffset=POM_CIRC;
+  if(disp)disp.textContent=`${String(mins).padStart(2,'0')}:00`;
+  if(stat){stat.textContent='Pronto';stat.style.color='#94a3b8';}
+}
+
+// capa info toggle
+function toggleCoverInfo(){
+  const box=document.getElementById('cover-info-box');
+  const visible=box.style.display!=='none';
+  box.style.display=visible?'none':'block';
+  if(!visible)setTimeout(()=>{box.style.display='none';},5000);
+}
+
+// ── BACKUP ──
+function exportarBackup(){
+  const data={books,genres,authors,logs,annualGoal:JSON.parse(localStorage.getItem('annualGoal')||'null'),mainGoal:JSON.parse(localStorage.getItem('mainGoal')||'null'),streakHistory:JSON.parse(localStorage.getItem('streakHistory')||'[]')};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='Libriley_Backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importarBackup(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.books)localStorage.setItem('books',JSON.stringify(d.books));
+      if(d.genres)localStorage.setItem('genres',JSON.stringify(d.genres));
+      if(d.authors)localStorage.setItem('authors',JSON.stringify(d.authors));
+      if(d.logs)localStorage.setItem('logs',JSON.stringify(d.logs));
+      if(d.annualGoal)localStorage.setItem('annualGoal',JSON.stringify(d.annualGoal));
+      if(d.mainGoal)localStorage.setItem('mainGoal',JSON.stringify(d.mainGoal));
+      if(d.streakHistory)localStorage.setItem('streakHistory',JSON.stringify(d.streakHistory));
+      alert('Backup restaurado! O app será recarregado.');location.reload();
+    }catch(err){alert('Arquivo inválido.');}
+  };
+  reader.readAsText(file);
+}
+
+// ── HISTORY ──
+function renderHistory(){
+  const f=document.getElementById('hist-filter')?.value||'all';
+  const now=new Date();
+  const filtered=logs.filter(l=>{
+    if(f==='all')return true;
+    const d=new Date(l.ts);
+    if(f==='week'){const w=new Date(now);w.setDate(now.getDate()-7);return d>=w;}
+    if(f==='month'){return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}
+    return true;
+  });
+  const el=document.getElementById('historyContainer');
+  if(!filtered.length){el.innerHTML='<p class="text-slate-500 text-center py-8">Nenhuma sessão registrada.</p>';return;}
+  const groups={};
+  filtered.forEach(l=>{
+    const d=new Date(l.ts);
+    const key=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+    if(!groups[key])groups[key]=[];
+    groups[key].push(l);
+  });
+  el.innerHTML=Object.entries(groups).map(([mes,items])=>`
+    <div class="mb-4">
+      <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">${mes}</p>
+      <div class="grid sm:grid-cols-2 gap-2">
+        ${items.map(l=>{
+          const d=new Date(l.ts);
+          const ds=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'2-digit'});
+          return`<div class="hist-card">
+            <p class="font-semibold text-sm leading-tight">${l.title}</p>
+            ${l.author?`<p class="text-slate-500 text-xs mt-0.5">${l.author}</p>`:''}
+            <div class="flex gap-3 mt-2 text-xs text-slate-400">
+              <span>📅 ${ds}</span>
+              <span>⏱ ${l.mins}min</span>
+              ${l.pages?`<span>📄 ${l.pages} págs</span>`:''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ── GOALS ──
+function renderAnnualGoal(){
+  const ano=new Date().getFullYear();
+  document.querySelectorAll('#goals-ano,#editor-ano,#ano-atual').forEach(el=>{if(el)el.textContent=ano;});
+  const goal=JSON.parse(localStorage.getItem('annualGoal'))||{};
+  const lidos=books.filter(b=>b.status==='finished').length;
+  const meta=goal.quantity||0;
+  document.getElementById('annual-progress-text').textContent=`${lidos} / ${meta||'?'} livros`;
+  const pct=meta?Math.min(100,Math.round(lidos/meta*100)):0;
+  const bar=document.getElementById('annual-bar');
+  bar.style.width=pct+'%';bar.textContent=pct+'%';
+  document.getElementById('annual-subtitle').textContent=meta?(pct>=100?'🎉 Meta alcançada!':
+    `Faltam ${meta-lidos} livros para sua meta de ${ano}`):'Configure sua meta anual em Metas →';
+  if(document.getElementById('goal-annual-display')){
+    document.getElementById('goal-annual-display').textContent=meta?`${lidos} / ${meta} livros lidos`:'Nenhuma meta definida';
+    const gb=document.getElementById('goal-annual-bar');gb.style.width=pct+'%';gb.textContent=pct+'%';
+    document.getElementById('goal-annual-info').textContent=meta?(pct>=100?'🎉 Meta alcançada!':
+      `Faltam ${meta-lidos} livros`):'';
+    if(document.getElementById('input-annual-goal'))document.getElementById('input-annual-goal').value=meta||'';
+  }
+}
+function saveAnnualGoal(){
+  const q=parseInt(document.getElementById('input-annual-goal').value)||0;
+  if(!q){showToast('Defina uma quantidade');return;}
+  localStorage.setItem('annualGoal',JSON.stringify({quantity:q}));
+  toggleSection('annual-editor');
+  renderAnnualGoal();showToast('Meta anual salva!');
+}
+
+function renderGoals(){
+  renderAnnualGoal();
+  const goal=JSON.parse(localStorage.getItem('mainGoal'));
+  if(goal){
+    document.getElementById('goal-rhythm-display').textContent=`${goal.quantity} ${goal.type} ${goal.frequency.toLowerCase()}`;
+    document.getElementById('goal-rhythm-info').textContent='Meta de ritmo activa';
+    document.getElementById('goalFrequency').value=goal.frequency;
+    document.getElementById('goalType').value=goal.type;
+    document.getElementById('goalQuantity').value=goal.quantity;
+  }
+  const sh=JSON.parse(localStorage.getItem('streakHistory'))||[];
+  const sc=document.getElementById('streakContainer');sc.innerHTML='';
+  for(let i=0;i<14;i++){
+    const item=sh[i];const btn=document.createElement('button');
+    btn.className=`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition ${item?'bg-green-700':'bg-slate-700 opacity-40'}`;
+    btn.textContent=item?'🔥':'·';
+    if(item){
+      btn.onmouseenter=e=>{
+        const tt=document.getElementById('streakTooltip');
+        tt.innerHTML=`<p class="font-bold mb-1">Meta concluída</p><p class="text-slate-400 text-xs">${item.date}</p><p class="mt-1 text-xs">${item.goal}</p>`;
+        tt.style.left=(e.pageX+12)+'px';tt.style.top=(e.pageY+12)+'px';tt.classList.remove('hidden');
+      };
+      btn.onmouseleave=()=>document.getElementById('streakTooltip').classList.add('hidden');
+    }
+    sc.appendChild(btn);
+  }
+  document.getElementById('streakHistory').innerHTML=sh.map(item=>`
+    <div class="hist-card"><p class="font-semibold text-sm">${item.goal}</p>
+    <div class="flex gap-3 mt-1 text-xs text-slate-400"><span>📅 ${item.date}</span><span>${item.frequency}</span></div></div>`).join('');
+  renderStats();
+}
+function saveRhythmGoal(){
+  const q=document.getElementById('goalQuantity').value;
+  if(!q){showToast('Defina uma quantidade');return;}
+  const goal={frequency:document.getElementById('goalFrequency').value,type:document.getElementById('goalType').value,quantity:q};
+  localStorage.setItem('mainGoal',JSON.stringify(goal));
+  const sh=JSON.parse(localStorage.getItem('streakHistory'))||[];
+  sh.unshift({date:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}),goal:`${q} ${goal.type}`,frequency:goal.frequency});
+  localStorage.setItem('streakHistory',JSON.stringify(sh));
+  toggleSection('rhythm-editor');renderGoals();showToast('Meta de ritmo salva!');
+}
+
+// ── STATS ──
+function renderStats(){
+  const lidos=books.filter(b=>b.status==='finished');
+  const totalPags=lidos.reduce((s,b)=>s+(b.pages||0),0);
+  const mediaEst=lidos.filter(b=>b.rating).length?
+    (lidos.filter(b=>b.rating).reduce((s,b)=>s+b.rating,0)/lidos.filter(b=>b.rating).length).toFixed(1):'—';
+  const sg=document.getElementById('stats-grid');
+  if(!sg)return;
+  sg.innerHTML=`
+    <div class="bg-slate-900 rounded-2xl p-4 text-center"><div class="text-2xl font-bold text-indigo-400">${lidos.length}</div><div class="text-slate-400 text-xs mt-1">Livros lidos</div></div>
+    <div class="bg-slate-900 rounded-2xl p-4 text-center"><div class="text-2xl font-bold text-green-400">${books.filter(b=>b.status==='reading').length}</div><div class="text-slate-400 text-xs mt-1">Lendo agora</div></div>
+    <div class="bg-slate-900 rounded-2xl p-4 text-center"><div class="text-2xl font-bold text-purple-400">${totalPags.toLocaleString('pt-BR')}</div><div class="text-slate-400 text-xs mt-1">Páginas lidas</div></div>
+    <div class="bg-slate-900 rounded-2xl p-4 text-center"><div class="text-2xl font-bold text-yellow-400">${mediaEst}</div><div class="text-slate-400 text-xs mt-1">Média estrelas</div></div>`;
+  const genMap={};
+  lidos.filter(b=>b.genre).forEach(b=>{genMap[b.genre]=(genMap[b.genre]||0)+1;});
+  const sortG=Object.entries(genMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxG=sortG[0]?sortG[0][1]:1;
+  document.getElementById('generos-chart').innerHTML=sortG.length?sortG.map(([g,n])=>`
+    <div class="flex items-center gap-3">
+      <span class="text-sm text-slate-300 w-28 truncate">${g}</span>
+      <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+        <div class="h-full bg-indigo-500 rounded-full" style="width:${Math.round(n/maxG*100)}%"></div>
+      </div>
+      <span class="text-slate-400 text-xs w-4 text-right">${n}</span>
+    </div>`)
+    .join(''):'<p class="text-slate-500 text-sm">Nenhum livro lido ainda</p>';
+  const mesMap={};
+  lidos.filter(b=>b.pages).forEach(b=>{
+    const d=new Date(b.addedAt||Date.now());
+    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    mesMap[k]=(mesMap[k]||0)+(b.pages||0);
+  });
+  const sortM=Object.entries(mesMap).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6);
+  const maxM=sortM.length?Math.max(...sortM.map(x=>x[1])):1;
+  document.getElementById('paginas-mes').innerHTML=sortM.length?sortM.map(([k,n])=>{
+    const [y,m]=k.split('-');
+    const label=new Date(y,m-1).toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+    return`<div class="flex items-center gap-3">
+      <span class="text-sm text-slate-300 w-16">${label}</span>
+      <div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+        <div class="h-full bg-green-500 rounded-full" style="width:${Math.round(n/maxM*100)}%"></div>
+      </div>
+      <span class="text-slate-400 text-xs w-12 text-right">${n.toLocaleString('pt-BR')}</span>
+    </div>`;}).join(''):'<p class="text-slate-500 text-sm">Nenhum dado ainda</p>';
+}
+
+// ===== LIBRILEY V3 ENHANCEMENTS =====
+let shelfView = localStorage.getItem('defaultShelfView') || localStorage.getItem('shelfView') || 'default';
+let unlockedAchievements = JSON.parse(localStorage.getItem('unlockedAchievements') || '[]');
+let backupSettings = JSON.parse(localStorage.getItem('backupSettings') || '{"frequency":"weekly","lastBackup":null}');
+
+function setShelfView(view){
+  shelfView = view;
+  localStorage.setItem('shelfView', view);
+
+  document.querySelectorAll('#view-default,#view-mini,#view-list')
+    .forEach(b => b.classList.remove('active'));
+
+  const activeBtn = document.getElementById('view-' + view);
+  if(activeBtn) activeBtn.classList.add('active');
+
+  renderBooks();
+}
+
+function setupViewButtonsDefaultManagement() {
+  const views = ['default', 'mini', 'list'];
+  views.forEach(v => {
+    const btn = document.getElementById('view-' + v);
+    if(!btn) return;
+
+    let timer;
+    const startHandler = (e) => {
+      timer = setTimeout(() => {
+        localStorage.setItem('defaultShelfView', v);
+        showToast(`Visualização padrão definida para: ${v === 'default' ? 'Grande' : v}!`);
+      }, 1200);
+    };
+
+    const endHandler = () => clearTimeout(timer);
+
+    btn.addEventListener('mousedown', startHandler);
+    btn.addEventListener('mouseup', endHandler);
+    btn.addEventListener('mouseleave', endHandler);
+    
+    btn.addEventListener('touchstart', startHandler, {passive: true});
+    btn.addEventListener('touchend', endHandler, {passive: true});
+    btn.addEventListener('contextmenu', e => e.preventDefault());
+  });
+}
+
+function showAchievementToast(a){
+  const t = document.createElement('div');
+  t.className = 'achievement-toast';
+  t.innerHTML = `
+    <div style="font-size:28px">${a.icon}</div>
+    <div>
+      <div style="font-weight:700">Conquista desbloqueada</div>
+      <div style="font-size:13px;opacity:.8">${a.name}</div>
+    </div>
+  `;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a => {
+    const alreadyUnlocked = unlockedAchievements.includes(a.id);
+    const unlockedNow = a.check();
+    if(unlockedNow && !alreadyUnlocked){
+      unlockedAchievements.push(a.id);
+      localStorage.setItem('unlockedAchievements', JSON.stringify(unlockedAchievements));
+      showAchievementToast(a);
+      if('Notification' in window && Notification.permission === 'granted'){
+        new Notification('Nova conquista desbloqueada!', { body: a.name });
+      }
+    }
+  });
+}
+
+function evaluateRhythmGoal(){
+  const goal = JSON.parse(localStorage.getItem('mainGoal'));
+  if(!goal) return;
+  const now = new Date();
+  let relevantLogs = [];
+
+  if(goal.frequency === 'Semanal'){
+    const start = new Date();
+    start.setDate(now.getDate() - 7);
+    relevantLogs = logs.filter(l => new Date(l.ts) >= start);
+  } else {
+    relevantLogs = logs.filter(l => {
+      const d = new Date(l.ts);
+      return (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear());
+    });
+  }
+
+  let total = 0;
+  if(goal.type === 'Páginas') total = relevantLogs.reduce((s,l)=>s+(l.pages||0),0);
+  if(goal.type === 'Minutos') total = relevantLogs.reduce((s,l)=>s+(l.mins||0),0);
+  if(goal.type === 'Livros')  total = books.filter(b => b.status === 'finished').length;
+
+  if(total >= Number(goal.quantity)){
+    const sh = JSON.parse(localStorage.getItem('streakHistory')) || [];
+    const alreadyLogged = sh.find(x => x.goal === `${goal.quantity} ${goal.type}`);
+    if(!alreadyLogged){
+      sh.unshift({
+        date:new Date().toLocaleDateString('pt-BR'),
+        goal:`${goal.quantity} ${goal.type}`,
+        frequency:goal.frequency
+      });
+      localStorage.setItem('streakHistory', JSON.stringify(sh));
+      showToast('Meta de ritmo concluída!');
+    }
+  }
+}
+
+const originalSaveRhythmGoal = saveRhythmGoal;
+saveRhythmGoal = function(){
+  const q=document.getElementById('goalQuantity').value;
+  if(!q){showToast('Defina uma quantidade');return;}
+  const goal={
+    frequency:document.getElementById('goalFrequency').value,
+    type:document.getElementById('goalType').value,
+    quantity:q
+  };
+  localStorage.setItem('mainGoal',JSON.stringify(goal));
+  toggleSection('rhythm-editor');
+  renderGoals();
+  showToast('Meta de ritmo salva!');
+}
+
+const originalExportarBackup = exportarBackup;
+exportarBackup = function(){
+  backupSettings.lastBackup = Date.now();
+  localStorage.setItem('backupSettings', JSON.stringify(backupSettings));
+  originalExportarBackup();
+}
+
+function checkBackupReminder(){
+  const cfg = JSON.parse(localStorage.getItem('backupSettings'));
+  if(!cfg) return;
+  if(!cfg.lastBackup){
+    showToast('Faça um backup da sua biblioteca');
+    return;
+  }
+  const now = Date.now();
+  const diff = now - cfg.lastBackup;
+  const limits = { daily:86400000, weekly:604800000, monthly:2592000000 };
+
+  if(diff > limits[cfg.frequency]){
+    showToast('Hora de fazer backup da sua biblioteca');
+    if('Notification' in window && Notification.permission === 'granted'){
+      new Notification('Backup recomendado', { body:'Exporte um backup do Libriley' });
+    }
+  }
+}
+
+// ── INIT ──
+loadGenres();
+renderAnnualGoal();
+navigator.serviceWorker?.register?.('sw.js');
+
+document.addEventListener('DOMContentLoaded', () => {
+  if('Notification' in window && Notification.permission !== 'granted'){
+    Notification.requestPermission();
+  }
+
+  const menu = document.getElementById('menu');
+  if(menu){
+    const wrapper = document.createElement('div');
+    wrapper.style.marginTop = '12px';
+    wrapper.innerHTML = `
+      <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:12px;">
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">Frequência do lembrete de backup</div>
+        <select id="backup-frequency" class="input mt-0">
+          <option value="daily">Diariamente</option>
+          <option value="weekly">Semanalmente</option>
+          <option value="monthly">Mensalmente</option>
+        </select>
+      </div>
+    `;
+    menu.appendChild(wrapper);
+
+    const sel = document.getElementById('backup-frequency');
+    if(sel){
+      sel.value = backupSettings.frequency || 'weekly';
+      sel.addEventListener('change', e => {
+        backupSettings.frequency = e.target.value;
+        localStorage.setItem('backupSettings', JSON.stringify(backupSettings));
+      });
+    }
+  }
+
+  setShelfView(shelfView);
+  setupViewButtonsDefaultManagement();
+  checkBackupReminder();
+  checkAchievements();
+});
+
+// pinch gesture
+let initialDistance = null;
+document.addEventListener('touchstart', e => {
+  if(e.touches.length === 2){
+    initialDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
+}, {passive:true});
+
+document.addEventListener('touchmove', e => {
+  if(e.touches.length === 2 && initialDistance){
+    const currentDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    const scale = currentDistance / initialDistance;
+    if(scale > 1.25){
+      setShelfView('default');
+    } else if(scale > 0.9){
+      setShelfView('mini');
+    } else{
+      setShelfView('list');
+    }
+  }
+}, {passive:true});
+
+// auto checks
+const originalSaveBook = saveBook;
+saveBook = function(){
+  originalSaveBook();
+  setTimeout(() => {
+    evaluateRhythmGoal();
+    checkAchievements();
+  }, 100);
+}
+
+const originalDeleteBook = deleteBook;
+deleteBook = function(id){
+  originalDeleteBook(id);
+  setTimeout(() => {
+    evaluateRhythmGoal();
+    checkAchievements();
+  }, 100);
+}
+</script>
+</body>
+</html>
